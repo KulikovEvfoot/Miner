@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Common.Job.Runtime.Employee;
-using Common.Job.Runtime.Info;
 
 namespace Common.Job.Runtime
 {
@@ -40,7 +38,7 @@ namespace Common.Job.Runtime
 
         private void GiveJobsToUnemployed()
         {
-            foreach (var employee in m_Employees.Where(e => e.GetEmployeeStatus() == EmployeeStatus.Unemployed))
+            foreach (var employee in m_Employees.Where(e => e.GetEmployeeInfo().EmployeeStatus == EmployeeEnvironment.Unemployed))
             {
                 foreach (var job in m_Jobs)
                 {
@@ -51,7 +49,7 @@ namespace Common.Job.Runtime
                     }
                     
                     var qualification = job.GetJobInfo().Qualification;
-                    if (employee.GetType().IsAssignableFrom(qualification))
+                    if (!employee.GetType().GetInterfaces().Contains(qualification))
                     {
                         continue;
                     }
@@ -62,7 +60,6 @@ namespace Common.Job.Runtime
                 }
             }
         }
-        
-
     }
 }
+

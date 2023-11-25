@@ -1,6 +1,4 @@
-﻿using Common.Job.Runtime.Employee;
-
-namespace Common.Job.Runtime
+﻿namespace Common.Job.Runtime
 {
     public interface IEmployeeFactoryObserver
     {

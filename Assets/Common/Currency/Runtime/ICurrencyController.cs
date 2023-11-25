@@ -1,4 +1,4 @@
-namespace Common.Wallet.Runtime
+namespace Common.Currency.Runtime
 {
     public interface ICurrencyController
     {

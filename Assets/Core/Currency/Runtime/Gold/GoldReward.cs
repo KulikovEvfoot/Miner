@@ -1,6 +1,6 @@
-﻿using Common.Wallet.Runtime.Rewards;
+﻿using Common.Currency.Runtime.Rewards;
 
-namespace Core.Currency.Runtime
+namespace Core.Currency.Runtime.Gold
 {
     public class GoldReward : IReward
     {

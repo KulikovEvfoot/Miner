@@ -1,4 +1,4 @@
-namespace Common.Wallet.Runtime.Calculators
+namespace Common.Currency.Runtime.Calculators
 {
     public class CalculationResult
     {

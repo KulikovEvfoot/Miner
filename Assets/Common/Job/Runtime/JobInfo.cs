@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using Common.Job.Runtime.Employee;
-using Core.EventProducer.Runtime;
+using Common.EventProducer.Runtime;
 
-namespace Common.Job.Runtime.Info
+namespace Common.Job.Runtime
 {
     public class JobInfo
     {

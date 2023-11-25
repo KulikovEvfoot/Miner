@@ -1,4 +1,4 @@
-using Common.Wallet.Runtime.Rewards;
+using Common.Currency.Runtime.Rewards;
 
 namespace Core.Job.Runtime
 {

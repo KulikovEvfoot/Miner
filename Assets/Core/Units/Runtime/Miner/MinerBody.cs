@@ -2,7 +2,7 @@
 using Common.Navigation.Runtime.Waypoint;
 using UnityEngine;
 
-namespace Core.Mine.Runtime
+namespace Core.Units.Runtime.Miner
 {
     public class MinerBody : MonoBehaviour, IMovableBody
     {

@@ -1,5 +1,3 @@
-using Common.Job.Runtime.Info;
-
 namespace Common.Job.Runtime
 {
     public interface IJobInfoObserver

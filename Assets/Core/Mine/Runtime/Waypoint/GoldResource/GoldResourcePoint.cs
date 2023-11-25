@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using Common.Navigation.Runtime.Waypoint;
 using Core.Job.Runtime;
-using Core.Mine.Runtime.Waypoint;
 using UnityEngine;
 
-namespace Core.NavigationSystem.Runtime.Resource
+namespace Core.Mine.Runtime.Waypoint.GoldResource
 {
     public class GoldResourcePoint : WaypointBase, IResourcePoint
     {

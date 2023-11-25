@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using Common.Job.Runtime.Employee;
-using Common.Job.Runtime.Info;
+using Common.Currency.Runtime.Rewards;
+using Common.EventProducer;
+using Common.EventProducer.Runtime;
+using Common.Job;
+using Common.Job.Runtime;
 using Common.Navigation.Runtime.Waypoint;
-using Common.Wallet.Runtime.Rewards;
-using Core.Currency.Runtime;
-using Core.EventProducer.Runtime;
 
-namespace Common.Job.Runtime.ResourceExtraction
+namespace Core.Job.Runtime.ResourceExtraction
 {
     public class ResourceExtractionJob : IJob
     {

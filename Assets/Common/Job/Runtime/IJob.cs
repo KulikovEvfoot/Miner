@@ -1,6 +1,4 @@
-﻿using Common.Job.Runtime.Info;
-
-namespace Common.Job.Runtime
+﻿namespace Common.Job.Runtime
 {
     public interface IJob
     {

@@ -1,7 +1,7 @@
 ﻿using Common.Navigation.Runtime.Waypoint;
 using UnityEngine;
 
-namespace Core.NavigationSystem.Runtime
+namespace Core.Mine.Runtime.Waypoint.Default
 {
     public class Waypoint : WaypointBase
     {

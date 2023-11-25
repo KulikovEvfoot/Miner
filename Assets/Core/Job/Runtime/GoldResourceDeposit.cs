@@ -1,6 +1,6 @@
 using System;
-using Common.Wallet.Runtime.Rewards;
-using Core.Currency.Runtime;
+using Common.Currency.Runtime.Rewards;
+using Core.Currency.Runtime.Gold;
 using UnityEngine;
 
 namespace Core.Job.Runtime

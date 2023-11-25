@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using Common.Wallet.Runtime.Rewards;
-using Core.Wallet.Runtime.Gold;
-using Core.WalletFeature.Currency.Hard;
+using Common.Currency.Runtime.Rewards;
+using Core.Currency.Runtime.Gold;
 using UnityEngine;
 
-namespace Core.Currency.Runtime
+namespace Core
 {
     public class RewardCollectorsController : MonoBehaviour
     {

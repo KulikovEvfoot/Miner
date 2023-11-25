@@ -1,12 +1,13 @@
-﻿using Common.Job.Runtime;
-using Common.Job.Runtime.ResourceExtraction;
+﻿using Common.EventProducer;
+using Common.EventProducer.Runtime;
+using Common.Job;
+using Common.Job.Runtime;
 using Common.Navigation.Runtime;
 using Common.Navigation.Runtime.Waypoint;
-using Core.Currency.Runtime;
-using Core.EventProducer.Runtime;
+using Core.Job.Runtime.ResourceExtraction;
 using UnityEngine;
 
-namespace Core.Job.Runtime
+namespace Core
 {
     public class ResourceExtractionController : MonoBehaviour
     {

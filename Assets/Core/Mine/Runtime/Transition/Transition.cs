@@ -3,7 +3,7 @@ using Common.Navigation.Runtime.Transition;
 using Common.Navigation.Runtime.Waypoint;
 using UnityEngine;
 
-namespace Core.NavigationSystem.Runtime
+namespace Core.Mine.Runtime.Transition
 {
     [Serializable]
     public class Transition : TransitionBase

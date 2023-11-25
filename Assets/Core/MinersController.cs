@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using Common;
+using Common.AssetLoader;
 using Common.AssetLoader.Runtime;
+using Common.EventProducer;
+using Common.EventProducer.Runtime;
+using Common.Job;
 using Common.Job.Runtime;
-using Common.Job.Runtime.ResourceExtraction;
 using Common.Moving.Runtime;
 using Common.Moving.Runtime.Speed;
 using Common.Navigation.Runtime;
 using Common.Navigation.Runtime.Waypoint;
-using Core.EventProducer.Runtime;
 using Core.Mine.Runtime;
-using Core.NavigationSystem.Runtime;
+using Core.Units.Runtime.Miner;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,17 +37,13 @@ namespace Core
         public void Init(
             IAssetLoader assetLoader, 
             IRouteBuilder routeBuilder,
+            IMovementSpeedService movementSpeedService,
             EventProducer<IEmployeeFactoryObserver> employeeFactoryObservers)
         {
             m_Miners = new List<Miner>();
             m_EmployeeFactoryObservers = employeeFactoryObservers;
-            var config = new MovementSpeedConfig
-            {
-                StartSpeedIndex = 0,
-                SpeedSettings = new List<float>{0.1f,0.2f,0.3f,0.4f,0.5f}
-            };
-
-            m_MovementSpeedService = new MovementSpeedService(config);
+            m_MovementSpeedService = movementSpeedService;
+            
             var unitMovementFactory = new UnitMovementFactory(m_MovementSpeedService, this);
             
             m_MinerFactory = new MinerFactory(AssetPath, assetLoader, routeBuilder, unitMovementFactory, m_SpawnPoint);
@@ -58,7 +56,7 @@ namespace Core
             var createdMiner = m_MinerFactory.Create();
             if (!createdMiner.IsExist)
             {
-                //pizdec
+                Debug.LogError($"{nameof(MinersController)} >>> Can't create miner");
                 return;
             }
 

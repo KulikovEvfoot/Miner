@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common.Job.Runtime;
-using Common.Job.Runtime.Employee;
-using Common.Job.Runtime.ResourceExtraction;
 using Common.Moving.Runtime;
 using Common.Navigation.Runtime;
 using Common.Navigation.Runtime.Waypoint;
+using Core.Job.Runtime.ResourceExtraction;
 
-namespace Core.Mine.Runtime
+namespace Core.Units.Runtime.Miner
 {
     public class Miner : IResourceExtractor
     {
@@ -15,7 +14,7 @@ namespace Core.Mine.Runtime
         private readonly IRouteBuilder m_RouteBuilder;
         private readonly IUnitMovement m_UnitMovement;
         private readonly Queue<IJob> m_Jobs;
-
+        private EmployeeInfo m_EmployeeInfo;
         private Action<string> m_OperationResult;
         
         public Miner(MinerBody body, IRouteBuilder routeBuilder, IUnitMovement unitMovement)
@@ -24,6 +23,7 @@ namespace Core.Mine.Runtime
             m_RouteBuilder = routeBuilder;
             m_UnitMovement = unitMovement;
             m_Jobs = new Queue<IJob>();
+            m_EmployeeInfo = new EmployeeInfo(EmployeeEnvironment.Unemployed);
         }
         
         public void EnqueueJob(IJob job)
@@ -38,40 +38,36 @@ namespace Core.Mine.Runtime
             OnJobQueueChanged();
         }
         
-        public EmployeeStatus GetEmployeeStatus()
+        public EmployeeInfo GetEmployeeInfo()
         {
-            if (m_Jobs.Count == 0)
-            {
-                return EmployeeStatus.Unemployed;
-            }
-
-            return EmployeeStatus.Working;
+            return m_EmployeeInfo;
         }
         
-        private void MovementResultConverter(string movementResult)
-        {
-            if (movementResult == m_UnitMovement.CompleteKey)
-            {
-                m_OperationResult?.Invoke(ResourceExtractorEnvironment.StageDone);
-            }
-        }
-
-        public void MoveTo(IWaypoint waypoint, Action<string> operationResult)
+        void IResourceExtractor.MoveTo(IWaypoint waypoint, Action<string> operationResult)
         {
             m_OperationResult = operationResult;
             var routeInfo = m_RouteBuilder.BuildRoute(m_Body.GetWaypoint(), waypoint);
-            m_UnitMovement.EnRouteMove(m_Body, routeInfo.Waypoints, MovementResultConverter);
+            m_UnitMovement.EnRouteMove(m_Body, routeInfo.Waypoints, ExtractorMovementResultConverter);
         }
 
-        public void OnExtractingResource(Action<string> operationResult)
+        void IResourceExtractor.OnExtractingResource(Action<string> operationResult)
         {
             operationResult?.Invoke(ResourceExtractorEnvironment.StageDone);
         }
 
-        public void FinalizeJob()
+        void IResourceExtractor.FinalizeJob()
         {
+            m_EmployeeInfo.EmployeeStatus = EmployeeEnvironment.Unemployed;
             var job = m_Jobs.Peek();
             job.FinalizeJob();
+        }
+        
+        private void ExtractorMovementResultConverter(string movementResult)
+        {
+            if (movementResult == UnitMovementEnvironment.CompleteKey)
+            {
+                m_OperationResult?.Invoke(ResourceExtractorEnvironment.StageDone);
+            }
         }
         
         private void OnJobQueueChanged()
@@ -90,6 +86,7 @@ namespace Core.Mine.Runtime
             if (job.GetJobInfo().JobStatus == JobEnvironment.JobStatus.Todo)
             {
                 job.StartJob();
+                m_EmployeeInfo.EmployeeStatus = EmployeeEnvironment.Working;
                 return true;
             }
             

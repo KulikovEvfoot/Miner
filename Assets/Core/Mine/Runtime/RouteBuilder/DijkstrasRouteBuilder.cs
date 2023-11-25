@@ -4,93 +4,72 @@ using Common.Navigation.Runtime;
 using Common.Navigation.Runtime.Transition;
 using Common.Navigation.Runtime.Waypoint;
 
-namespace Core.NavigationSystem.Runtime
+namespace Core.Mine.Runtime.RouteBuilder
 {
     public class DijkstrasRouteBuilder : IRouteBuilder
     {
         private readonly IMapRouter m_MapRouter;
-        private Dictionary<IWaypoint, Dictionary<IWaypoint, float>> m_Map;
 
         public DijkstrasRouteBuilder(IMapRouter mapRouter)
         {
             m_MapRouter = mapRouter;
         }
-        
-        public void CreateGraph(IWaypoint startPoint)
-        {
-            m_Map = new Dictionary<IWaypoint, Dictionary<IWaypoint, float>>();
 
-            foreach (var route in m_MapRouter.Routes)
-            {
-                var transitions = route.Transitions.Where(t => t.From.Equals(startPoint)).ToList();
-                
-                var temp = new List<ITransition>();
-                while (true)
-                {
-                    foreach (var transition in transitions)
-                    {
-                        if (!m_Map.ContainsKey(transition.From))
-                        {
-                            m_Map.Add(transition.From, new Dictionary<IWaypoint, float>());
-                        }
-
-                        if (transition.To.Equals(startPoint))
-                        {
-                            continue;
-                        }
-
-                        if (m_Map[transition.From].ContainsKey(transition.To))
-                        {
-                            continue;
-                        }
-                        
-                        m_Map[transition.From].Add(transition.To, transition.GetTransitionLength());
-
-                        var col = route.Transitions.Where(t => t.From.Equals(transition.To));
-                        temp.AddRange(col);
-                    }
-
-                    if (temp.Count == 0)
-                    {
-                        break;
-                    }
-                    
-                    transitions = temp.ToList();
-                    temp.Clear();
-                }
-            }
-            
-            // foreach (var route in m_MapRouter.Routes)
-            // {
-            //     foreach (var transition in route.Transitions)
-            //     {
-            //         if (!m_Map.ContainsKey(transition.From))
-            //         {
-            //             m_Map.Add(transition.From, new Dictionary<IWaypoint, float>());
-            //         }
-            //
-            //         if (!m_Map.ContainsKey(transition.To))
-            //         {
-            //             m_Map.Add(transition.To, new Dictionary<IWaypoint, float>());
-            //         }
-            //         
-            //         m_Map[transition.From].Add(transition.To, transition.GetTransitionLength());
-            //     }
-            // }
-        }
-        
         public RouteInfo BuildRoute(IWaypoint startPoint, IWaypoint endPoint)
         {
-            CreateGraph(startPoint);
-            var result = DijkstrasAlgorithm(endPoint);
+            var graph = CreateGraph(startPoint);
+            var result = DijkstrasAlgorithm(graph, endPoint);
             return result;
         }
 
-        private RouteInfo DijkstrasAlgorithm(IWaypoint endPoint)
+        //TODO: оптимизировать создание графа
+        private Dictionary<IWaypoint, Dictionary<IWaypoint, float>> CreateGraph(IWaypoint startPoint)
         {
-            // var firstPair = graph.FirstOrDefault(g => g.Key.Equals(startPoint));
-            var graph = m_Map;
-            var firstPair = m_Map.First();
+            var map = m_MapRouter.Map;
+            var graph = new Dictionary<IWaypoint, Dictionary<IWaypoint, float>>();
+            var transitions = map.Transitions.Where(t => t.From.Equals(startPoint)).ToList();
+                
+            var temp = new List<ITransition>();
+            while (true)
+            {
+                foreach (var transition in transitions)
+                {
+                    if (!graph.ContainsKey(transition.From))
+                    {
+                        graph.Add(transition.From, new Dictionary<IWaypoint, float>());
+                    }
+
+                    if (transition.To.Equals(startPoint))
+                    {
+                        continue;
+                    }
+
+                    if (graph[transition.From].ContainsKey(transition.To))
+                    {
+                        continue;
+                    }
+                        
+                    graph[transition.From].Add(transition.To, transition.GetTransitionLength());
+
+                    var nextTransitions = map.Transitions.Where(t => t.From.Equals(transition.To));
+                    temp.AddRange(nextTransitions);
+                }
+
+                if (temp.Count == 0)
+                {
+                    break;
+                }
+                    
+                transitions = temp.ToList();
+                temp.Clear();
+            }
+            
+            return graph;
+        }
+
+        private RouteInfo DijkstrasAlgorithm(Dictionary<IWaypoint, Dictionary<IWaypoint, float>> graph, IWaypoint endPoint)
+        {
+            var firstPair = graph.First();
             var parents = new Dictionary<IWaypoint, IWaypoint>();
             var costs = new Dictionary<IWaypoint, float>();
             foreach (var firstNeighbor in firstPair.Value)
@@ -167,18 +146,18 @@ namespace Core.NavigationSystem.Runtime
         private IWaypoint FindLowestCostNode(IDictionary<IWaypoint, float> costs, HashSet<IWaypoint> processed)
         {
             var lowesCost = float.MaxValue;
-            IWaypoint IWaypoint = null;
+            IWaypoint waypoint = null;
             foreach (var node in costs)
             {
                 var cost = node.Value;
                 if (cost < lowesCost && !processed.Contains(node.Key))
                 {
                     lowesCost = cost;
-                    IWaypoint = node.Key;
+                    waypoint = node.Key;
                 }
             }
 
-            return IWaypoint;
+            return waypoint;
         }
     }
 }

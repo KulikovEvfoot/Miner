@@ -1,4 +1,4 @@
-﻿namespace Core.EventProducer.Runtime
+﻿namespace Common.EventProducer.Runtime
 {
     public interface IEventProducer<T> 
     {

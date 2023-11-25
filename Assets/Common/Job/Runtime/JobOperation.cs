@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Common.Job.Runtime.Employee
+namespace Common.Job.Runtime
 {
     public class JobOperation
     {

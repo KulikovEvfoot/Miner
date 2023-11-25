@@ -1,6 +1,6 @@
 using System;
 
-namespace Core.WalletFeature.Currency.Hard
+namespace Core.Currency.Runtime.Gold
 {
     [Serializable]
     public class GoldCurrencyData

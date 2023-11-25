@@ -1,7 +1,8 @@
-using Common.Wallet.Runtime;
-using Common.Wallet.Runtime.Calculators;
+using Common.Currency;
+using Common.Currency.Runtime;
+using Common.Currency.Runtime.Calculators;
 
-namespace Core.WalletFeature.Currency.Hard
+namespace Core.Currency.Runtime.Gold
 {
     public class GoldCurrencyController : ICurrencyController
     {

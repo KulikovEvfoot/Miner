@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Common.Wallet.Runtime.Rewards
+namespace Common.Currency.Runtime.Rewards
 {
     public class RewardCollectorsService
     {

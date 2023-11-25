@@ -1,9 +1,8 @@
 ﻿using System;
-using Common.Wallet.Runtime.Rewards;
-using Core.Currency.Runtime;
-using Core.WalletFeature.Currency.Hard;
+using Common.Currency.Runtime.Rewards;
+using UnityEngine;
 
-namespace Core.Wallet.Runtime.Gold
+namespace Core.Currency.Runtime.Gold
 {
     public class GoldCurrencyRewardCollector : IRewardCollector
     {
@@ -23,13 +22,17 @@ namespace Core.Wallet.Runtime.Gold
         {
             if (reward == null)
             {
+                Debug.LogError($"{nameof(GoldCurrencyRewardCollector)} >>> Entry reward is null");
                 return;
             }
 
             if (reward is GoldReward currencyReward)
             {
                 m_GoldCurrencyController.AddValue(currencyReward.Value);
+                return;
             }
+            
+            Debug.LogError($"{nameof(GoldCurrencyRewardCollector)} >>> Entry {reward.GetType()} is not {typeof(GoldReward)}");
         }
     }
 }

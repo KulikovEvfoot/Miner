@@ -17,20 +17,6 @@ namespace Common.Navigation.Runtime
         public IList<IWaypoint> Waypoints => m_WaypointBases;
         public IList<ITransition> Transitions => m_Transitions;
         
-        public void Init()
-        {
-            CreateWaypoints();
-        }
-
-        private void CreateWaypoints()
-        {
-
-        }
-        
-
-        
-        
-        
         private void OnDrawGizmos()
         {
             if (m_Transitions == null)
@@ -64,6 +50,5 @@ namespace Common.Navigation.Runtime
                 Gizmos.color = oldColor;
             }
         }
-
     }
 }

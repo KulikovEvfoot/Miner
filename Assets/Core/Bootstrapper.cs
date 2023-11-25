@@ -1,11 +1,15 @@
-﻿using Common;
+﻿using System.Collections.Generic;
+using Common;
+using Common.AssetLoader;
 using Common.AssetLoader.Runtime;
+using Common.EventProducer;
+using Common.EventProducer.Runtime;
+using Common.Job;
 using Common.Job.Runtime;
+using Common.Moving.Runtime.Speed;
 using Common.Navigation.Runtime;
-using Core.Currency.Runtime;
-using Core.EventProducer.Runtime;
 using Core.Job.Runtime;
-using Core.NavigationSystem.Runtime;
+using Core.Mine.Runtime.RouteBuilder;
 using UnityEngine;
 
 namespace Core
@@ -46,7 +50,14 @@ namespace Core
                 m_JobFactoryObservers, 
                 m_JobInfoObserver);
             
-            m_MinersController.Init(assetLoader, routeBuilder, m_EmployeeFactoryObservers);
+            var config = new MovementSpeedConfig
+            {
+                StartSpeedIndex = 0,
+                SpeedSettings = new List<float>{0.1f,0.2f,0.3f,0.4f,0.5f}
+            };
+
+            var movementSpeedService = new MovementSpeedService(config);
+            m_MinersController.Init(assetLoader, routeBuilder, movementSpeedService, m_EmployeeFactoryObservers);
             
         }
     }

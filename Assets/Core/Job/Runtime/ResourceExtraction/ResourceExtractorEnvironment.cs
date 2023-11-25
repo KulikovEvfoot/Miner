@@ -1,4 +1,4 @@
-﻿namespace Common.Job.Runtime.ResourceExtraction
+﻿namespace Core.Job.Runtime.ResourceExtraction
 {
     public class ResourceExtractorEnvironment
     {

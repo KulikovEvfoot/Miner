@@ -1,8 +1,8 @@
 ﻿using System;
-using Common.Job.Runtime.Employee;
+using Common.Job.Runtime;
 using Common.Navigation.Runtime.Waypoint;
 
-namespace Common.Job.Runtime.ResourceExtraction
+namespace Core.Job.Runtime.ResourceExtraction
 {
     public interface IResourceExtractor : IEmployee
     {

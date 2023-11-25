@@ -16,9 +16,7 @@ namespace Common.Moving.Runtime
         private Coroutine m_EnRouteMovingRoutine;
         private Coroutine m_MoveToWaypoint;
         private Action<string> m_OperationResult;
-
-        public string CompleteKey => "complete_key";
-
+        
         public UnitMovement(
             IMovementSpeedService movementSpeedService, 
             ICoroutineRunner coroutineRunner)
@@ -45,20 +43,23 @@ namespace Common.Moving.Runtime
                 yield return m_MoveToWaypoint;
             }
             
-            m_OperationResult?.Invoke(CompleteKey);
+            m_OperationResult?.Invoke(UnitMovementEnvironment.CompleteKey);
         }
 
         private IEnumerator MoveTo(IWaypoint waypoint)
         {
             while (m_MovableBody.Transform.position != waypoint.Position)
             {
-                m_MovableBody.Transform.position = Vector3.MoveTowards(m_MovableBody.Transform.position, waypoint.Position, m_MovementSpeedService.Speed);
-                // m_MovableBody.Transform.Translate(waypoint.Position.normalized * m_MovementSpeedService.Speed * Time.deltaTime);
+                m_MovableBody.Transform.position 
+                    = Vector3.MoveTowards(
+                        m_MovableBody.Transform.position, 
+                        waypoint.Position,
+                        m_MovementSpeedService.Speed);
+                
                 yield return new WaitForFixedUpdate();
             }
             
             m_MovableBody.SetWaypoint(waypoint);
-            Debug.Log("here");
         }
     }
 }

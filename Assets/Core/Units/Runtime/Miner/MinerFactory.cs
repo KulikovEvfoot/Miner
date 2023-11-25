@@ -1,11 +1,12 @@
 ﻿using Common;
+using Common.AssetLoader;
 using Common.AssetLoader.Runtime;
 using Common.Moving.Runtime;
 using Common.Navigation.Runtime;
 using Common.Navigation.Runtime.Waypoint;
 using UnityEngine;
 
-namespace Core.Mine.Runtime
+namespace Core.Units.Runtime.Miner
 {
     public class MinerFactory : IMinerFactory
     {

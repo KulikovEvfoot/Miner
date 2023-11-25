@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Core.EventProducer.Runtime
+namespace Common.EventProducer.Runtime
 {
     public class EventProducer<T> : IEventProducer<T>
     {

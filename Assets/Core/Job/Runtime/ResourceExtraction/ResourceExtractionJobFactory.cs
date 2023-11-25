@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Common.EventProducer;
+using Common.EventProducer.Runtime;
+using Common.Job;
+using Common.Job.Runtime;
 using Common.Navigation.Runtime;
 using Common.Navigation.Runtime.Waypoint;
-using Common.Wallet.Runtime.Rewards;
-using Core.Currency.Runtime;
-using Core.EventProducer.Runtime;
 using Core.Mine.Runtime.Waypoint;
 
-namespace Common.Job.Runtime.ResourceExtraction
+namespace Core.Job.Runtime.ResourceExtraction
 {
     public class ResourceExtractionJobFactory
     {

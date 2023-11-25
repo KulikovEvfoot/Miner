@@ -1,4 +1,4 @@
-﻿namespace Common.Wallet.Runtime.Rewards
+﻿namespace Common.Currency.Runtime.Rewards
 {
     public interface IReward
     {

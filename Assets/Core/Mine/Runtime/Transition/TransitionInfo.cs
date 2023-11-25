@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Core.NavigationSystem.Runtime
+namespace Core.Mine.Runtime.Transition
 {
     [Serializable]
     public class TransitionInfo

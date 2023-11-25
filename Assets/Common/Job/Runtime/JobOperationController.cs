@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Common.Job.Runtime.Employee;
+using UnityEngine;
 
-namespace Common.Job.Runtime.ResourceExtraction
+namespace Common.Job.Runtime
 {
     public class JobOperationController
     {
@@ -28,6 +27,7 @@ namespace Common.Job.Runtime.ResourceExtraction
             
             if (!operationResult.TryGetValue(resultKey, out var nextOperationName))
             { 
+                Debug.LogError($"{nameof(JobOperationController)} >> can't find operation by key = {resultKey}");
                 return;
             }
 
@@ -39,7 +39,6 @@ namespace Common.Job.Runtime.ResourceExtraction
             var nextOperation = m_JobOperations[nextOperationName].Operation;
             m_CurrentOperationName = nextOperationName;
             nextOperation?.Invoke();
-
         }
     }
 }

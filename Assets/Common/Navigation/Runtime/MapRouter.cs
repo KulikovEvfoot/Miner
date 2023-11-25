@@ -1,19 +1,18 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Common.Navigation.Runtime
 {
     public class MapRouter : MonoBehaviour, IMapRouter
     {
-        [SerializeField] public List<Route> m_Routes;
+        [SerializeField] public Route m_Route;
         
-        public List<Route> Routes => m_Routes;
+        public Route Map => m_Route;
 
         public List<T> FindAllWaypointsByType<T>()
         {
             var result = new List<T>();
-            foreach (var waypoint in m_Routes.SelectMany(route => route.Waypoints))
+            foreach (var waypoint in m_Route.Waypoints)
             {
                 if (waypoint is T point)
                 {

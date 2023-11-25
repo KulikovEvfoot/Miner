@@ -4,7 +4,7 @@ namespace Common.Navigation.Runtime
 {
     public interface IMapRouter
     {
-        List<Route> Routes { get; }
+        Route Map { get; }
         List<T> FindAllWaypointsByType<T>();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Common;
 
-namespace Core.Mine.Runtime
+namespace Core.Units.Runtime.Miner
 {
     public interface IMinerFactory
     {
