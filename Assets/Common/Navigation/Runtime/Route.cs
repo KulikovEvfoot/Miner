@@ -1,6 +1,5 @@
-using System;
 using System.Collections.Generic;
-using Common.Navigation.Runtime.Transition;
+using System.Linq;
 using Common.Navigation.Runtime.Waypoint;
 using UnityEngine;
 
@@ -9,22 +8,21 @@ namespace Common.Navigation.Runtime
     public class Route : MonoBehaviour
     {
         [SerializeField] private WaypointBase[] m_WaypointBases;
-        [SerializeField] private TransitionBase[] m_Transitions;
         [SerializeField] private Color m_DrawingColor = Color.white;
         
         private Dictionary<IWaypoint, List<IWaypoint>> m_WaypointsByType;
 
         public IList<IWaypoint> Waypoints => m_WaypointBases;
-        public IList<ITransition> Transitions => m_Transitions;
         
         private void OnDrawGizmos()
         {
-            if (m_Transitions == null)
+            if (m_WaypointBases == null)
             {
                 return;
             }
         
-            foreach (var transition in m_Transitions)
+            var transitions = m_WaypointBases.SelectMany(w => w.Transitions);
+            foreach (var transition in transitions)
             {
                 if (transition == null || transition.From == null || transition.To == null)
                 {

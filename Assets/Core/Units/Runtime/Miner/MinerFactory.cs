@@ -30,19 +30,19 @@ namespace Core.Units.Runtime.Miner
             m_SpawnPoint = spawnPoint;
         }
 
-        public Result<Miner> Create()
+        public Result<IMiner> Create()
         {
             var bodyLoadResult = m_AssetLoader.LoadSync<MinerBody>(m_AssetPath);
             if (!bodyLoadResult.IsExist)
             {
-                return new Result<Miner>(null, false);
+                return new Result<IMiner>(null, false);
             }
 
             var unitMovement = m_UnitMovementFactory.Create();
             var minerBody = Object.Instantiate(bodyLoadResult.Object, m_SpawnPoint.Transform);
             minerBody.SetWaypoint(m_SpawnPoint);
             var miner = new Miner(minerBody, m_RouteBuilder, unitMovement);
-            return new Result<Miner>(miner, true);
+            return new Result<IMiner>(miner, true);
         }
     }
 }

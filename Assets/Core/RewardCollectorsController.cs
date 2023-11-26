@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Common.Currency.Runtime.Rewards;
-using Core.Currency.Runtime.Gold;
 using UnityEngine;
 
 namespace Core
@@ -9,13 +8,8 @@ namespace Core
     {
         private RewardCollectorsService m_RewardCollectorsService;
         
-        public void Init()
+        public void Init(List<IRewardCollector> rewardCollectors)
         {
-            var goldCurrencyData = new GoldCurrencyData();
-            var goldCurrencyController = new GoldCurrencyController(goldCurrencyData);
-            var goldCurrencyRewardCollector = new GoldCurrencyRewardCollector(goldCurrencyController);
-            
-            var rewardCollectors = new List<IRewardCollector> { goldCurrencyRewardCollector };
             m_RewardCollectorsService = new RewardCollectorsService(rewardCollectors);
         }
 

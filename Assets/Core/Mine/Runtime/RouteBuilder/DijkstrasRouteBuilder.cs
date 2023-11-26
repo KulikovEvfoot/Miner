@@ -27,8 +27,11 @@ namespace Core.Mine.Runtime.RouteBuilder
         {
             var map = m_MapRouter.Map;
             var graph = new Dictionary<IWaypoint, Dictionary<IWaypoint, float>>();
-            var transitions = map.Transitions.Where(t => t.From.Equals(startPoint)).ToList();
-                
+            var transitions = map.Waypoints
+                .SelectMany(w => w.Transitions)
+                .Where(t => t.From.Equals(startPoint))
+                .ToList();
+            
             var temp = new List<ITransition>();
             while (true)
             {
@@ -51,7 +54,10 @@ namespace Core.Mine.Runtime.RouteBuilder
                         
                     graph[transition.From].Add(transition.To, transition.GetTransitionLength());
 
-                    var nextTransitions = map.Transitions.Where(t => t.From.Equals(transition.To));
+                    var nextTransitions = map.Waypoints
+                        .SelectMany(w => w.Transitions)
+                        .Where(t => t.From.Equals(transition.To));
+                    
                     temp.AddRange(nextTransitions);
                 }
 

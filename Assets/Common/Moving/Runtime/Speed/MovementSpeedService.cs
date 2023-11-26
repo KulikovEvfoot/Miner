@@ -25,9 +25,10 @@ namespace Common.Moving.Runtime.Speed
 
         public void Inc()
         {
-            if (m_SpeedIndex >= m_SpeedSetting.Count)
+            var maxSpeedIndex = m_SpeedSetting.Count - 1;
+            if (m_SpeedIndex >= maxSpeedIndex)
             {
-                m_Speed = m_SpeedSetting[m_SpeedSetting.Count - 1];
+                m_Speed = m_SpeedSetting[maxSpeedIndex];
                 return;
             }
 

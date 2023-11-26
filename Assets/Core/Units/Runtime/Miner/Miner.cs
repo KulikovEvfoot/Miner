@@ -8,14 +8,17 @@ using Core.Job.Runtime.ResourceExtraction;
 
 namespace Core.Units.Runtime.Miner
 {
-    public class Miner : IResourceExtractor
+    public class Miner : IMiner
     {
         private readonly MinerBody m_Body;
         private readonly IRouteBuilder m_RouteBuilder;
         private readonly IUnitMovement m_UnitMovement;
         private readonly Queue<IJob> m_Jobs;
-        private EmployeeInfo m_EmployeeInfo;
+        private readonly EmployeeInfo m_EmployeeInfo;
+        
         private Action<string> m_OperationResult;
+
+        public IUnitMovement UnitMovement => m_UnitMovement;
         
         public Miner(MinerBody body, IRouteBuilder routeBuilder, IUnitMovement unitMovement)
         {

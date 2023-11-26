@@ -1,23 +1,19 @@
 ﻿using System;
-using Common.Navigation.Runtime.Transition;
 using Common.Navigation.Runtime.Waypoint;
 using UnityEngine;
 
-namespace Core.Mine.Runtime.Transition
+namespace Common.Navigation.Runtime.Transition
 {
     [Serializable]
-    public class Transition : TransitionBase
+    public class Transition : ITransition
     {
         [SerializeField] private WaypointBase m_From;
         [SerializeField] private WaypointBase m_To;
-        [SerializeField] private TransitionInfo m_TransitionInfo;
 
-        public override IWaypoint From => m_From;
-        public override IWaypoint To => m_To;
+        public IWaypoint From => m_From;
+        public IWaypoint To => m_To;
         
-        public TransitionInfo TransitionInfo => m_TransitionInfo;
-
-        public override float GetTransitionLength()
+        public float GetTransitionLength()
         {
             var p1 = From.Position;
             var p2 = To.Position;
@@ -25,7 +21,7 @@ namespace Core.Mine.Runtime.Transition
             return lenght;
         }
 
-        public override Vector3 GetTransitionDirection()
+        public Vector3 GetTransitionDirection()
         {
             var heading = To.Position - From.Position;
             var distance = heading.magnitude;

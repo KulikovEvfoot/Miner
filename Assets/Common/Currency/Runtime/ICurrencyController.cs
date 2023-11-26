@@ -1,3 +1,6 @@
+using System;
+using Common.EventProducer.Runtime;
+
 namespace Common.Currency.Runtime
 {
     public interface ICurrencyController
@@ -6,5 +9,6 @@ namespace Common.Currency.Runtime
         bool SubtractValue(long amount);
         long GetValue();
         bool CanSub(long amount);
+        IEventProducer<ICurrencyObserver> CurrencyEventProducer { get; }
     }
 }

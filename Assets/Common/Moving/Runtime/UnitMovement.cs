@@ -17,6 +17,8 @@ namespace Common.Moving.Runtime
         private Coroutine m_MoveToWaypoint;
         private Action<string> m_OperationResult;
         
+        public IMovementSpeedService MovementSpeedService => m_MovementSpeedService;
+        
         public UnitMovement(
             IMovementSpeedService movementSpeedService, 
             ICoroutineRunner coroutineRunner)
