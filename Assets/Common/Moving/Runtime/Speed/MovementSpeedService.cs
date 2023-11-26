@@ -47,5 +47,16 @@ namespace Common.Moving.Runtime.Speed
             m_SpeedIndex--;
             m_Speed = m_SpeedSetting[m_SpeedIndex];
         }
+
+        public bool CanInc()
+        {
+            var maxSpeedIndex = m_SpeedSetting.Count - 1;
+            return m_SpeedIndex < maxSpeedIndex;
+        }
+
+        public bool CanDec()
+        {
+            return m_SpeedIndex > 0;
+        }
     }
 }

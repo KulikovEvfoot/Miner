@@ -41,7 +41,7 @@ namespace Core.Job.Runtime.ResourceExtraction
                     .ToList();
                 
                 IJob job = new ResourceExtractionJob(
-                    resourcePoint as IWaypoint, 
+                    resourcePoint, 
                     m_Warehouse, 
                     m_RewardCollectorsService, 
                     rewards, 

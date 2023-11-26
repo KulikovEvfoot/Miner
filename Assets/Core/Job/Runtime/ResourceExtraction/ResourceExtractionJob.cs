@@ -5,6 +5,7 @@ using Common.EventProducer.Runtime;
 using Common.Job;
 using Common.Job.Runtime;
 using Common.Navigation.Runtime.Waypoint;
+using Core.Mine.Runtime.Waypoint;
 
 namespace Core.Job.Runtime.ResourceExtraction
 {
@@ -18,14 +19,14 @@ namespace Core.Job.Runtime.ResourceExtraction
         private readonly RewardCollectorsController m_RewardCollectorsService;
         private readonly List<IReward> m_Rewards;
         private readonly JobInfo m_JobInfo;
-        private readonly IWaypoint m_ResourcePoint;
+        private readonly IResourcePoint m_ResourcePoint;
         private readonly IWaypoint m_BasePoint;
         
         private JobOperationController m_JobOperationController;
         private IResourceExtractor m_ResourceExtractor;
 
         public ResourceExtractionJob(
-            IWaypoint resourcePoint, 
+            IResourcePoint resourcePoint, 
             IWaypoint basePoint, 
             RewardCollectorsController rewardCollectorsService,
             List<IReward> rewards,
@@ -108,7 +109,7 @@ namespace Core.Job.Runtime.ResourceExtraction
 
         private void ExtractResourceCall()
         {
-            m_ResourceExtractor.OnExtractingResource(OnOperationComplete);
+            m_ResourceExtractor.OnExtractingResource(m_ResourcePoint, OnOperationComplete);
         }
 
         private void TransferResourceToBaseCall()

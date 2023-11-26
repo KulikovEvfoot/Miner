@@ -5,13 +5,14 @@ using Common.Moving.Runtime;
 using Common.Navigation.Runtime;
 using Common.Navigation.Runtime.Waypoint;
 using Core.Job.Runtime.ResourceExtraction;
+using Core.Mine.Runtime.Waypoint;
 
 namespace Core.Units.Runtime.Miner
 {
     public class Miner : IMiner
     {
         private readonly MinerBody m_Body;
-        private readonly IRouteBuilder m_RouteBuilder;
+        private readonly IRouteNavigator m_RouteNavigator;
         private readonly IUnitMovement m_UnitMovement;
         private readonly Queue<IJob> m_Jobs;
         private readonly EmployeeInfo m_EmployeeInfo;
@@ -20,10 +21,10 @@ namespace Core.Units.Runtime.Miner
 
         public IUnitMovement UnitMovement => m_UnitMovement;
         
-        public Miner(MinerBody body, IRouteBuilder routeBuilder, IUnitMovement unitMovement)
+        public Miner(MinerBody body, IRouteNavigator routeNavigator, IUnitMovement unitMovement)
         {
             m_Body = body;
-            m_RouteBuilder = routeBuilder;
+            m_RouteNavigator = routeNavigator;
             m_UnitMovement = unitMovement;
             m_Jobs = new Queue<IJob>();
             m_EmployeeInfo = new EmployeeInfo(EmployeeEnvironment.Unemployed);
@@ -49,12 +50,13 @@ namespace Core.Units.Runtime.Miner
         void IResourceExtractor.MoveTo(IWaypoint waypoint, Action<string> operationResult)
         {
             m_OperationResult = operationResult;
-            var routeInfo = m_RouteBuilder.BuildRoute(m_Body.GetWaypoint(), waypoint);
+            var routeInfo = m_RouteNavigator.BuildRoute(m_Body.GetWaypoint(), waypoint);
             m_UnitMovement.EnRouteMove(m_Body, routeInfo.Waypoints, ExtractorMovementResultConverter);
         }
 
-        void IResourceExtractor.OnExtractingResource(Action<string> operationResult)
+        void IResourceExtractor.OnExtractingResource(IResourcePoint resourcePoint, Action<string> operationResult)
         {
+            resourcePoint.ResourceExtracted();
             operationResult?.Invoke(ResourceExtractorEnvironment.StageDone);
         }
 

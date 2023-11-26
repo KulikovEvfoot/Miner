@@ -10,9 +10,7 @@ namespace Common.Navigation.Runtime
         [SerializeField] private WaypointBase[] m_WaypointBases;
         [SerializeField] private Color m_DrawingColor = Color.white;
         
-        private Dictionary<IWaypoint, List<IWaypoint>> m_WaypointsByType;
-
-        public IList<IWaypoint> Waypoints => m_WaypointBases;
+        public IEnumerable<IWaypoint> Waypoints => m_WaypointBases;
         
         private void OnDrawGizmos()
         {

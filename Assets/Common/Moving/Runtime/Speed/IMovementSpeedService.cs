@@ -5,5 +5,7 @@ namespace Common.Moving.Runtime.Speed
         float Speed { get; }
         void Inc();
         void Dec();
+        bool CanInc();
+        bool CanDec();
     }
 }

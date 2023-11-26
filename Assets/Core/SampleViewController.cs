@@ -55,6 +55,12 @@ namespace Core
                 return;
             }
 
+            if (!m_MinersController.CanSpeedUpMiners())
+            {
+                Debug.Log($"{nameof(SampleViewController)} >>> Miners has max speed");
+                return;
+            }
+
             m_GoldCurrencyController.SubtractValue(price);
             m_MinersController.SpeedUpMiners();
         }

@@ -3,14 +3,15 @@ using System.Linq;
 using Common.Navigation.Runtime;
 using Common.Navigation.Runtime.Transition;
 using Common.Navigation.Runtime.Waypoint;
+using UnityEngine;
 
 namespace Core.Mine.Runtime.RouteBuilder
 {
-    public class DijkstrasRouteBuilder : IRouteBuilder
+    public class DijkstrasRouteNavigator : IRouteNavigator
     {
         private readonly IMapRouter m_MapRouter;
 
-        public DijkstrasRouteBuilder(IMapRouter mapRouter)
+        public DijkstrasRouteNavigator(IMapRouter mapRouter)
         {
             m_MapRouter = mapRouter;
         }
@@ -73,7 +74,8 @@ namespace Core.Mine.Runtime.RouteBuilder
             return graph;
         }
 
-        private RouteInfo DijkstrasAlgorithm(Dictionary<IWaypoint, Dictionary<IWaypoint, float>> graph, IWaypoint endPoint)
+        private RouteInfo DijkstrasAlgorithm(Dictionary<IWaypoint, Dictionary<IWaypoint, float>> graph,
+            IWaypoint endPoint)
         {
             var firstPair = graph.First();
             var parents = new Dictionary<IWaypoint, IWaypoint>();
@@ -90,16 +92,16 @@ namespace Core.Mine.Runtime.RouteBuilder
                 {
                     continue;
                 }
-                
+
                 if (parents.ContainsKey(mainMapKey))
                 {
                     continue;
                 }
-                
+
                 parents.Add(mainMapKey, default);
                 costs.Add(mainMapKey, float.MaxValue);
             }
-            
+
             var processed = new HashSet<IWaypoint>();
             for (int i = 0; i < graph.Count - 1; i++)
             {
@@ -112,7 +114,7 @@ namespace Core.Mine.Runtime.RouteBuilder
                     {
                         continue;
                     }
-                    
+
                     var newCost = cost + neighbor.Value;
                     var oldCost = costs[neighbor.Key];
                     if (oldCost > newCost)
@@ -128,6 +130,12 @@ namespace Core.Mine.Runtime.RouteBuilder
             var waypoints = new List<IWaypoint>();
             var length = 0f;
             var searchablePair = parents.FirstOrDefault(p => p.Key.Equals(endPoint));
+            if (searchablePair.Equals(new KeyValuePair<IWaypoint, IWaypoint>()))
+            {
+                Debug.LogError($"{nameof(DijkstrasRouteNavigator)} >>> Can't find {(endPoint as MonoBehaviour)?.name}");
+                return null;
+            }
+            
             waypoints.Add(searchablePair.Key);
             length += costs[searchablePair.Key];
             var lastParent = searchablePair.Value;

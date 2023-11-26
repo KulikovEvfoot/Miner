@@ -45,7 +45,7 @@ namespace Core
             
             IAssetLoader assetLoader = new ResourceLoader();
             
-            IRouteBuilder routeBuilder = new DijkstrasRouteBuilder(m_MapRouter);
+            IRouteNavigator routeNavigator = new DijkstrasRouteNavigator(m_MapRouter);
             
             m_CurrencyController.Init();
             ICurrencyController goldCurrencyController = m_CurrencyController.GoldCurrencyController;
@@ -62,7 +62,13 @@ namespace Core
             IMovementSpeedService minerMovementSpeedService = new MovementSpeedService(m_MovementSpeedConfig);
             IUnitMovementFactory unitMovementFactory = new UnitMovementFactory(minerMovementSpeedService, this);
 
-            m_MinersController.Init(m_MinerAssetPath, assetLoader, routeBuilder, unitMovementFactory, m_EmployeeFactoryObservers);
+            m_MinersController.Init(
+                m_MinerAssetPath, 
+                assetLoader, 
+                routeNavigator, 
+                minerMovementSpeedService,
+                unitMovementFactory, 
+                m_EmployeeFactoryObservers);
 
             m_SampleViewController.Init(m_MinersController, goldCurrencyController, m_SamplePriceConfig);
         }

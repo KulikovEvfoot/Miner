@@ -12,20 +12,20 @@ namespace Core.Units.Runtime.Miner
     {
         private readonly string m_AssetPath;
         private readonly IAssetLoader m_AssetLoader;
-        private readonly IRouteBuilder m_RouteBuilder;
+        private readonly IRouteNavigator m_RouteNavigator;
         private readonly IUnitMovementFactory m_UnitMovementFactory;
         private readonly IWaypoint m_SpawnPoint;
 
         public MinerFactory(
             string assetPath,
             IAssetLoader assetLoader, 
-            IRouteBuilder routeBuilder, 
+            IRouteNavigator routeNavigator, 
             IUnitMovementFactory unitMovementFactory, 
             IWaypoint spawnPoint)
         {
             m_AssetPath = assetPath;
             m_AssetLoader = assetLoader;
-            m_RouteBuilder = routeBuilder;
+            m_RouteNavigator = routeNavigator;
             m_UnitMovementFactory = unitMovementFactory;
             m_SpawnPoint = spawnPoint;
         }
@@ -41,7 +41,7 @@ namespace Core.Units.Runtime.Miner
             var unitMovement = m_UnitMovementFactory.Create();
             var minerBody = Object.Instantiate(bodyLoadResult.Object, m_SpawnPoint.Transform);
             minerBody.SetWaypoint(m_SpawnPoint);
-            var miner = new Miner(minerBody, m_RouteBuilder, unitMovement);
+            var miner = new Miner(minerBody, m_RouteNavigator, unitMovement);
             return new Result<IMiner>(miner, true);
         }
     }
