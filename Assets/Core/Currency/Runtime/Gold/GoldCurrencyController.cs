@@ -1,6 +1,6 @@
-using Common.Currency.Runtime;
-using Common.Currency.Runtime.Calculators;
-using Common.EventProducer.Runtime;
+using Common;
+using Services.Currency.Runtime;
+using Services.Currency.Runtime.Calculators;
 
 namespace Core.Currency.Runtime.Gold
 {

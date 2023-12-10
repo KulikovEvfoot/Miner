@@ -1,6 +1,6 @@
 ﻿using System;
-using Common.Currency.Runtime;
-using Common.EventProducer.Runtime;
+using Common;
+using Services.Currency.Runtime;
 using UnityEngine;
 
 namespace Core
@@ -9,17 +9,19 @@ namespace Core
     {
         [SerializeField] private SampleView m_SampleView;
         
-        private MinersController m_MinersController;
+        private ResourceExtractorController m_ResourceExtractorController;
+        private ResourceExtractionJobController m_ResourceExtractionJobController;
         private ICurrencyController m_GoldCurrencyController;
         private SamplePriceConfig m_SamplePriceConfig;
         private IEventProducer<ICurrencyObserver> m_CurrencyEventProducer;
 
-        public void Init(
-            MinersController minersController, 
-            ICurrencyController goldCurrencyController, 
+        public void Init(ResourceExtractorController resourceExtractorController,
+            ResourceExtractionJobController resourceExtractionJobController,
+            ICurrencyController goldCurrencyController,
             SamplePriceConfig samplePriceConfig)
         {
-            m_MinersController = minersController;
+            m_ResourceExtractorController = resourceExtractorController;
+            m_ResourceExtractionJobController = resourceExtractionJobController;
             m_GoldCurrencyController = goldCurrencyController;
             m_SamplePriceConfig = samplePriceConfig;
             
@@ -43,7 +45,8 @@ namespace Core
             }
 
             m_GoldCurrencyController.SubtractValue(price);
-            m_MinersController.CreateMiner();
+            m_ResourceExtractorController.CreateMiner();
+            m_ResourceExtractionJobController.CreateJob();
         }
 
         private void SpeedUpMiners()
@@ -55,14 +58,14 @@ namespace Core
                 return;
             }
 
-            if (!m_MinersController.CanSpeedUpMiners())
+            if (!m_ResourceExtractorController.CanSpeedUpMiners())
             {
                 Debug.Log($"{nameof(SampleViewController)} >>> Miners has max speed");
                 return;
             }
 
             m_GoldCurrencyController.SubtractValue(price);
-            m_MinersController.SpeedUpMiners();
+            m_ResourceExtractorController.SpeedUpMiners();
         }
 
         private void OnDestroy()

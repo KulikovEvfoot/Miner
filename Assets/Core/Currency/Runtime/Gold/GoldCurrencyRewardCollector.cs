@@ -1,5 +1,5 @@
 ﻿using System;
-using Common.Currency.Runtime.Rewards;
+using Services.Currency.Runtime.Rewards;
 using UnityEngine;
 
 namespace Core.Currency.Runtime.Gold

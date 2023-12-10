@@ -1,14 +1,14 @@
-﻿using Common.Currency.Runtime.Rewards;
+﻿using System;
+using Services.Currency.Runtime.Rewards;
+using UnityEngine;
 
 namespace Core.Currency.Runtime.Gold
 {
+    [Serializable]
     public class GoldReward : IReward
     {
-        public long Value { get; }
+        [SerializeField] private long m_Value;
 
-        public GoldReward(long value)
-        {
-            Value = value;
-        }
+        public long Value => m_Value;
     }
 }

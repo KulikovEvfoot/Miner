@@ -1,12 +1,9 @@
 ﻿using Common;
-using Common.AssetLoader.Runtime;
-using Common.Currency.Runtime;
-using Common.EventProducer.Runtime;
-using Common.Job.Runtime;
-using Common.Moving.Runtime;
-using Common.Moving.Runtime.Speed;
-using Common.Navigation.Runtime;
-using Core.Mine.Runtime.RouteBuilder;
+using Services.AssetLoader.Runtime;
+using Services.Currency.Runtime;
+using Services.Job.Runtime;
+using Services.Navigation.Runtime.Scripts.Transfer;
+using Services.Navigation.Runtime.Scripts.Transfer.Speed;
 using UnityEngine;
 
 namespace Core
@@ -15,15 +12,14 @@ namespace Core
     {
         private const string m_MinerAssetPath = "miner";
 
-        [SerializeField] private MapRouter m_MapRouter;
         [SerializeField] private RewardCollectorsController m_RewardCollectorsController;
-        [SerializeField] private MinersController m_MinersController;
-        [SerializeField] private ResourceExtractionController m_ResourceExtractionController;
+        [SerializeField] private ResourceExtractorController m_ResourceExtractorController;
+        [SerializeField] private ResourceExtractionJobController m_ResourceExtractionJobController;
         [SerializeField] private CurrencyController m_CurrencyController;
         [SerializeField] private SampleViewController m_SampleViewController;
 
         [SerializeField] private long m_StartGoldCurrencyCount;
-        [SerializeField] private MovementSpeedConfig m_MovementSpeedConfig;
+        [SerializeField] private SpeedConfig speedConfig;
         [SerializeField] private SamplePriceConfig m_SamplePriceConfig;
         
         private readonly EventProducer<IJobFactoryObserver> m_JobFactoryObservers
@@ -45,32 +41,34 @@ namespace Core
             
             IAssetLoader assetLoader = new ResourceLoader();
             
-            IRouteNavigator routeNavigator = new DijkstrasRouteNavigator(m_MapRouter);
-            
             m_CurrencyController.Init();
             ICurrencyController goldCurrencyController = m_CurrencyController.GoldCurrencyController;
             goldCurrencyController.AddValue(m_StartGoldCurrencyCount);
             
             m_RewardCollectorsController.Init(m_CurrencyController.RewardCollectors);
             
-            m_ResourceExtractionController.Init(
-                m_MapRouter, 
+            m_ResourceExtractionJobController.Init(
                 m_RewardCollectorsController,
                 m_JobFactoryObservers, 
                 m_JobInfoObserver);
             
-            IMovementSpeedService minerMovementSpeedService = new MovementSpeedService(m_MovementSpeedConfig);
-            IUnitMovementFactory unitMovementFactory = new UnitMovementFactory(minerMovementSpeedService, this);
+            ISpeedService minerSpeedService = new MovementSpeedService(speedConfig);
 
-            m_MinersController.Init(
+            var transitionTransfer = new TransitionTransfer();
+            
+            m_ResourceExtractorController.Init(
                 m_MinerAssetPath, 
                 assetLoader, 
-                routeNavigator, 
-                minerMovementSpeedService,
-                unitMovementFactory, 
+                minerSpeedService,
+                this, 
+                transitionTransfer,
                 m_EmployeeFactoryObservers);
 
-            m_SampleViewController.Init(m_MinersController, goldCurrencyController, m_SamplePriceConfig);
+            m_SampleViewController.Init(
+                m_ResourceExtractorController, 
+                m_ResourceExtractionJobController,
+                goldCurrencyController, 
+                m_SamplePriceConfig);
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using Common.Navigation.Runtime.Waypoint;
-using Core.Job.Runtime;
+using Services.Currency.Runtime.Rewards;
+using Services.Navigation.Runtime;
+using Services.Navigation.Runtime.Scripts;
 
 namespace Core.Mine.Runtime.Waypoint
 {
     public interface IResourcePoint : IWaypoint
     {
-        void ResourceExtracted();
-        IEnumerable<IResourceDeposit> ResourceDeposits { get; }
+        IEnumerable<IReward> Rewards { get; }
     }
 }

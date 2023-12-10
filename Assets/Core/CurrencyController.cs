@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Common.Currency.Runtime;
-using Common.Currency.Runtime.Rewards;
 using Core.Currency.Runtime.Gold;
+using Services.Currency.Runtime;
+using Services.Currency.Runtime.Rewards;
 using UnityEngine;
 
 namespace Core

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Common.Currency.Runtime.Rewards;
+using Services.Currency.Runtime.Rewards;
 using UnityEngine;
 
 namespace Core
@@ -16,6 +16,14 @@ namespace Core
         public void CollectReward(IReward reward)
         {
             m_RewardCollectorsService.CollectReward(reward);
+        }
+        
+        public void CollectRewards(IEnumerable<IReward> rewards)
+        {
+            foreach (var reward in rewards)
+            {
+                m_RewardCollectorsService.CollectReward(reward);
+            }
         }
     }
 }
