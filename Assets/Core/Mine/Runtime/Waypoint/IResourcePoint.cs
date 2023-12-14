@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using Services.Currency.Runtime.Rewards;
-using Services.Navigation.Runtime;
+using Core.Currency.Runtime;
 using Services.Navigation.Runtime.Scripts;
 
 namespace Core.Mine.Runtime.Waypoint
 {
     public interface IResourcePoint : IWaypoint
     {
-        IEnumerable<IReward> Rewards { get; }
+        IEnumerable<IResourceReward> ExtractResources(int countOfLooping);
     }
 }

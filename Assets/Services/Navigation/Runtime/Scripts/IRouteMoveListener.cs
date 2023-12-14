@@ -1,16 +1,23 @@
-﻿namespace Services.Navigation.Runtime.Scripts
+﻿using System.Collections.Generic;
+
+namespace Services.Navigation.Runtime.Scripts
 {
-    public interface IRouteMoveListener : IOnTransferCompleteListener, IOnRouteCompleteListener
+    public interface IRouteMoveListener : IRouteTickListener, ITransitionCompleteListener, IRouteCompleteListener
     {
     }
 
-    public interface IOnTransferCompleteListener
+    public interface IRouteTickListener
     {
-        void NotifyOnTransferComplete(ITransition transition);
+        void Tick(RouteTickInfo routeTickInfo);
+    }
+    
+    public interface ITransitionCompleteListener
+    {
+        void NotifyOnTransitionComplete(IEnumerable<ITransition> passedTransitions);
     }
 
-    public interface IOnRouteCompleteListener
+    public interface IRouteCompleteListener
     {
-        void NotifyOnRouteComplete(float time);
+        void NotifyOnRouteComplete(IEnumerable<ITransition> route, int countOfCompletedLoops);
     }
 }

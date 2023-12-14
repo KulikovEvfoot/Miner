@@ -24,9 +24,7 @@ namespace Core.ResourceExtraction.Executor.Deliverer
             if (jobOperationInfo is ResourceExtractionDelivererInfo info)
             {
                 m_RewardCollectorsService.CollectRewards(m_CollectedRewards);
-                var resourceExtractionStarterInfo = new ResourceExtractionStarterInfo(info.ResourceExtractor, info.Time);
-
-                m_Job.Execute(resourceExtractionStarterInfo);
+                m_CollectedRewards.Clear();
             }
         }
     }

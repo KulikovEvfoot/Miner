@@ -7,5 +7,6 @@ namespace Services.Navigation.Runtime.Scripts
         public IWaypoint From { get; }
         public IWaypoint To { get; }
         Vector3 GetTransitionDirection();
+        float GetTransitionLenght();
     }
 }

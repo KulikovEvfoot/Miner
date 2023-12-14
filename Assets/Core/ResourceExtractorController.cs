@@ -21,17 +21,17 @@ namespace Core
         private List<IResourceExtractor> m_Miners;
         private EventProducer<IEmployeeFactoryObserver> m_EmployeeFactoryObservers;
         private ISpeedService m_SpeedService;
-        private TransitionTransfer m_TransitionTransfer;
+        private RouteConductor m_RouteConductor;
 
         public void Init(
             string assetPath,
             IAssetLoader assetLoader, 
             ISpeedService speedService,
             ICoroutineRunner coroutineRunner,
-            TransitionTransfer transitionTransfer,
+            RouteConductor routeConductor,
             EventProducer<IEmployeeFactoryObserver> employeeFactoryObservers)
         {
-            m_TransitionTransfer = transitionTransfer;
+            m_RouteConductor = routeConductor;
             m_Miners = new List<IResourceExtractor>();
             m_EmployeeFactoryObservers = employeeFactoryObservers;
             m_SpeedService = speedService;
@@ -40,7 +40,7 @@ namespace Core
                 assetLoader,
                 speedService, 
                 coroutineRunner, 
-                m_TransitionTransfer,
+                m_RouteConductor,
                 m_SpawnPoint);
         }
 

@@ -1,17 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Common;
+using Core.Currency.Runtime;
 using Core.Mine.Runtime.Waypoint;
 using Core.ResourceExtraction.Executor.Deliverer;
 using Core.ResourceExtraction.Executor.Finalizer;
 using Core.ResourceExtraction.Executor.Gatherer;
 using Core.ResourceExtraction.Executor.Starter;
+using Services.Currency.Runtime.Rewards;
 using Services.Job.Runtime;
-using Services.Navigation.Runtime;
 using Services.Navigation.Runtime.Scripts;
 using Services.Navigation.Runtime.Scripts.Transfer;
+using Services.Navigation.Runtime.Scripts.Transfer.Speed;
+using UnityEngine;
 
 namespace Core.ResourceExtraction.ResourceExtractor
 {
-    public class ResourceExtractor : IResourceExtractor
+    public class ResourceExtractor : IResourceExtractor, IRouteMoveListener
     {
         private readonly ResourceExtractorBody m_Body;
         private readonly IRouteMovement m_RouteMovement;
@@ -20,10 +25,13 @@ namespace Core.ResourceExtraction.ResourceExtractor
         
         private IJob m_ActiveJob;
         
-        public ResourceExtractor(ResourceExtractorBody body, IRouteMovement routeMovement)
+        public ResourceExtractor(
+            ResourceExtractorBody body,
+            ISpeedService movementSpeedService,
+            ICoroutineRunner coroutineRunner)
         {
             m_Body = body;
-            m_RouteMovement = routeMovement;
+            m_RouteMovement = new ResourceExtractorMovement(this, movementSpeedService, coroutineRunner);
             
             m_Jobs = new Queue<IJob>();
             m_EmployeeInfo = new EmployeeInfo(EmployeeEnvironment.Unemployed);
@@ -47,41 +55,70 @@ namespace Core.ResourceExtraction.ResourceExtractor
             return m_EmployeeInfo;
         }
         
-        public void ResourceGathering(IEnumerable<ITransition> transitions, float time)
+        public void ResourceGathering(IEnumerable<ITransition> transitions)
         {
-            m_RouteMovement.EnRouteMove(
-                transitions, 
-                this,
-                new TransferInfo(m_Body.Transform.position, time));
+            m_RouteMovement.EnRouteMove(transitions);
         }
 
-        public void NotifyOnTransferComplete(ITransition transition)
+        public void Tick(RouteTickInfo routeTickInfo)
         {
-            var waypoint = transition.To;
-            if (waypoint is IResourcePoint resourcePoint)
+            m_Body.Move(routeTickInfo.Position);
+        }
+
+        public void NotifyOnTransitionComplete(IEnumerable<ITransition> passedTransitions)
+        {
+
+        }
+
+        public void NotifyOnRouteComplete(IEnumerable<ITransition> route, int countOfCompletedLoops)
+        {
+            var resourcePoints = new List<IResourcePoint>();
+            foreach (var transition in route)
             {
-                var gatheringInfo = new ResourceExtractionGatheringInfo
+                if (transition.To is IResourcePoint resourcePoint)
                 {
-                    Rewards = resourcePoint.Rewards
-                };
-                
-                m_ActiveJob.Execute(gatheringInfo);
+                    resourcePoints.Add(resourcePoint);
+                }
             }
-        }
-
-        public void NotifyOnRouteComplete(float time)
-        {
-            var delivererInfo = new ResourceExtractionDelivererInfo(this, time);
-            m_ActiveJob.Execute(delivererInfo);
             
+            if (resourcePoints.Count == 0)
+            {
+                return;
+            }
+            
+            ExtractResources(resourcePoints, countOfCompletedLoops);
+            DeliverResource();
         }
-
+        
         public void FinalizeJob()
         {
             var finalizerInfo = new ResourceExtractionFinalizerInfo();
             m_ActiveJob.Execute(finalizerInfo);
             
             m_EmployeeInfo.EmployeeStatus = EmployeeEnvironment.Unemployed;
+        }
+        
+        private void ExtractResources(IEnumerable<IResourcePoint> resourcePoints, int countOfLooping)
+        {
+            var rewards = new List<IReward>();
+            foreach (var resourcePoint in resourcePoints)
+            {
+                var resourceRewards = resourcePoint.ExtractResources(countOfLooping);
+                rewards.AddRange(resourceRewards);
+            }
+            
+            var gatheringInfo = new ResourceExtractionGatheringInfo
+            {
+                Rewards = rewards
+            };
+                
+            m_ActiveJob.Execute(gatheringInfo);
+        }
+
+        private void DeliverResource()
+        {
+            var delivererInfo = new ResourceExtractionDelivererInfo();
+            m_ActiveJob.Execute(delivererInfo);
         }
 
         private void OnJobQueueChanged()
@@ -100,7 +137,7 @@ namespace Core.ResourceExtraction.ResourceExtractor
             if (job.GetJobInfo().JobStatus == JobEnvironment.JobStatus.Todo)
             {
                 m_ActiveJob = job;
-                var starterInfo = new ResourceExtractionStarterInfo(this, 0);
+                var starterInfo = new ResourceExtractionStarterInfo(this);
                 
                 m_ActiveJob.Execute(starterInfo);
                 

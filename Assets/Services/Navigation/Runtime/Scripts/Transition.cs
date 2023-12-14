@@ -19,5 +19,11 @@ namespace Services.Navigation.Runtime.Scripts
             var direction = heading / distance;
             return direction;
         }
+
+        public float GetTransitionLenght()
+        {
+            var result = Vector3.Distance(To.Position, From.Position);
+            return result;
+        }
     }
 }

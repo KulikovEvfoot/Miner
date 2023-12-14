@@ -54,14 +54,14 @@ namespace Core
             
             ISpeedService minerSpeedService = new MovementSpeedService(speedConfig);
 
-            var transitionTransfer = new TransitionTransfer();
+            var routeConductor = new RouteConductor();
             
             m_ResourceExtractorController.Init(
                 m_MinerAssetPath, 
                 assetLoader, 
                 minerSpeedService,
                 this, 
-                transitionTransfer,
+                routeConductor,
                 m_EmployeeFactoryObservers);
 
             m_SampleViewController.Init(
@@ -69,6 +69,9 @@ namespace Core
                 m_ResourceExtractionJobController,
                 goldCurrencyController, 
                 m_SamplePriceConfig);
+            
+            m_ResourceExtractorController.CreateMiner();
+            m_ResourceExtractionJobController.CreateJob();
         }
     }
 }

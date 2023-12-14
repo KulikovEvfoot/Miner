@@ -1,6 +1,5 @@
 ﻿using Common;
 using Services.AssetLoader.Runtime;
-using Services.Navigation.Runtime;
 using Services.Navigation.Runtime.Scripts;
 using Services.Navigation.Runtime.Scripts.Transfer;
 using Services.Navigation.Runtime.Scripts.Transfer.Speed;
@@ -15,7 +14,7 @@ namespace Core.ResourceExtraction.ResourceExtractor
         private readonly IAssetLoader m_AssetLoader;
         private readonly ISpeedService m_SpeedService;
         private readonly ICoroutineRunner m_CoroutineRunner;
-        private readonly ITransitionTransfer m_TransitionTransfer;
+        private readonly IRouteConductor m_RouteConductor;
         private readonly IWaypoint m_SpawnPoint;
 
         public ResourceExtractorFactory(
@@ -23,14 +22,14 @@ namespace Core.ResourceExtraction.ResourceExtractor
             IAssetLoader assetLoader, 
             ISpeedService speedService,
             ICoroutineRunner coroutineRunner,
-            ITransitionTransfer transitionTransfer,
+            IRouteConductor routeConductor,
             IWaypoint spawnPoint)
         {
             m_AssetPath = assetPath;
             m_AssetLoader = assetLoader;
             m_SpeedService = speedService;
             m_CoroutineRunner = coroutineRunner;
-            m_TransitionTransfer = transitionTransfer;
+            m_RouteConductor = routeConductor;
             m_SpawnPoint = spawnPoint;
         }
 
@@ -43,8 +42,7 @@ namespace Core.ResourceExtraction.ResourceExtractor
             }
 
             var minerBody = Object.Instantiate(bodyLoadResult.Object, m_SpawnPoint.Position, Quaternion.identity);
-            var movement = new RouteMovement(minerBody, m_SpeedService, m_CoroutineRunner, m_TransitionTransfer);
-            var miner = new ResourceExtractor(minerBody, movement);
+            var miner = new ResourceExtractor(minerBody, m_SpeedService, m_CoroutineRunner);
             return new Result<IResourceExtractor>(miner, true);
         }
     }

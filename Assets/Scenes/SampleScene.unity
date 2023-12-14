@@ -440,7 +440,7 @@ MonoBehaviour:
   speedConfig:
     StartSpeedIndex: 0
     SpeedSettings:
-    - 50
+    - 100
     - 100
     - 200
   m_SamplePriceConfig:
@@ -645,7 +645,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95e35c12e681483f9a16cc76241a0c74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Reward:
+  m_GoldReward:
     m_Value: 1
   m_GoldResourceView: {fileID: 408154417}
 --- !u!4 &262407060
@@ -1570,7 +1570,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95e35c12e681483f9a16cc76241a0c74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Reward:
+  m_GoldReward:
     m_Value: 1
   m_GoldResourceView: {fileID: 2004135601}
 --- !u!1 &1192035837
@@ -53512,7 +53512,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95e35c12e681483f9a16cc76241a0c74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Reward:
+  m_GoldReward:
     m_Value: 1
   m_GoldResourceView: {fileID: 6652022}
 --- !u!4 &1623801652
@@ -54237,7 +54237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95e35c12e681483f9a16cc76241a0c74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Reward:
+  m_GoldReward:
     m_Value: 1
   m_GoldResourceView: {fileID: 55916619}
 --- !u!4 &2044526735

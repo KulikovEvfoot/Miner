@@ -34,7 +34,7 @@ namespace Core.ResourceExtraction.Executor.Starter
                 
                 m_JobInfo.JobStatus = JobEnvironment.JobStatus.InProgress;
 
-                info.ResourceExtractor.ResourceGathering(m_Transitions, info.Time);
+                info.ResourceExtractor.ResourceGathering(m_Transitions);
             }
         }
     }
