@@ -436,7 +436,7 @@ MonoBehaviour:
   m_ResourceExtractionJobController: {fileID: 666870534}
   m_CurrencyController: {fileID: 1292447236}
   m_SampleViewController: {fileID: 68905122}
-  m_StartGoldCurrencyCount: 5
+  m_StartGoldCurrencyCount: 0
   speedConfig:
     StartSpeedIndex: 0
     SpeedSettings:
