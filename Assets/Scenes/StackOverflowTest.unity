@@ -1506,16 +1506,16 @@ MonoBehaviour:
   m_ResourceExtractionJobController: {fileID: 830221342}
   m_CurrencyController: {fileID: 156914228}
   m_SampleViewController: {fileID: 786936545}
-  m_StartGoldCurrencyCount: 5
+  m_StartGoldCurrencyCount: 0
   speedConfig:
     StartSpeedIndex: 0
     SpeedSettings:
-    - 1000
+    - 1
     - 100
     - 200
   m_SamplePriceConfig:
-    m_CreateMinerPrice: 5
-    m_SpeedUpMinersPrice: 8
+    m_CreateMinerPrice: 10
+    m_SpeedUpMinersPrice: 50
 --- !u!4 &937456336
 Transform:
   m_ObjectHideFlags: 0

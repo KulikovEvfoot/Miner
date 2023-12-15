@@ -21,7 +21,7 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
             
             var timeToRouteEnd = lengthToRouteEnd / speed;
             var remainingTimeAfterRoute = deltaTime - timeToRouteEnd;
-            var isRoutePassed = remainingTimeAfterRoute > float.Epsilon;
+            var isRoutePassed = remainingTimeAfterRoute > 0 - float.Epsilon;
 
             if (isRoutePassed)
             {
@@ -29,18 +29,17 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
                 
                 currentPosition = route.First().From.Position;
                 currentTransitionIndex = 0;
-                deltaTime = Math.Abs(remainingTimeAfterRoute);
+                deltaTime = Mathf.Abs(remainingTimeAfterRoute);
 
                 var totalRouteLength = GetLengthToRouteEnd(currentPosition, currentTransitionIndex, route);
                 var timeToPassRoute = totalRouteLength / speed;
-                var passedLoops = (int)(deltaTime / timeToPassRoute);
+                var passedLoops = Mathf.FloorToInt(deltaTime / timeToPassRoute);
                 if (passedLoops > 0)
                 {
-                    countOfCompletedRoutes += (int)(deltaTime / timeToPassRoute);
+                    countOfCompletedRoutes += passedLoops;
                     deltaTime %= timeToPassRoute;
                 }
                 
-                Debug.Log($"passed loops = {countOfCompletedRoutes}");
                 routeMoveListener.NotifyOnRouteComplete(route, countOfCompletedRoutes);
             }
             
@@ -52,7 +51,7 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
                 var lenghtToTransitionEnd = GetLenghtToTransitionEnd(currentPosition, currentTransition);
                 var timeToNextTransition = lenghtToTransitionEnd / speed;
                 var remainingTimeAfterTransition = deltaTime - timeToNextTransition;
-                var isTransitionPassed = remainingTimeAfterTransition > float.Epsilon;
+                var isTransitionPassed = remainingTimeAfterTransition > 0 - float.Epsilon;
                 if (isTransitionPassed)
                 {
                     currentPosition = currentTransition.To.Position;
@@ -126,33 +125,5 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
 
             return nextIndex;
         }
-        
-
-        // public TransferInfo Transfer(
-        //     float deltaTime,
-        //     Vector3 currentPosition,
-        //     ISpeedService speedService,
-        //     ITransition transition)
-        // {
-        //     var nextPosition = transition.To.Position;
-        //     var rangeToNextPosition = Vector3.Distance(nextPosition, currentPosition);
-        //
-        //     var speed = speedService.Speed;
-        //     
-        //     var timeToNextPosition = rangeToNextPosition / speed;
-        //
-        //     var remainingTime = timeToNextPosition - deltaTime;
-        //     
-        //     if (float.Epsilon > remainingTime)
-        //     {
-        //         //точка пройдена
-        //         return new TransferInfo(nextPosition, Math.Abs(remainingTime), true);
-        //     }
-        //
-        //     var direction = transition.GetTransitionDirection();
-        //     var newPosition = currentPosition + (direction * speed * deltaTime);
-        //     
-        //     return new TransferInfo(newPosition, 0, false);
-        // }
     }
 }
