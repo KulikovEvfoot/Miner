@@ -1,49 +1,48 @@
-﻿using Common;
+﻿using System.Threading.Tasks;
+using Common;
+using Core.Mine.Runtime.Point.Base;
 using Services.AssetLoader.Runtime;
-using Services.Navigation.Runtime.Scripts;
 using Services.Navigation.Runtime.Scripts.Transfer;
 using Services.Navigation.Runtime.Scripts.Transfer.Speed;
 using UnityEngine;
-using ICoroutineRunner = Common.ICoroutineRunner;
+using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace Core.ResourceExtraction.ResourceExtractor
 {
     public class ResourceExtractorFactory : IResourceExtractorFactory
     {
-        private readonly string m_AssetPath;
-        private readonly IAssetLoader m_AssetLoader;
+        private readonly object m_AssetAddress;
+        private readonly AddressablesAssetLoader m_AssetLoader;
         private readonly ISpeedService m_SpeedService;
         private readonly ICoroutineRunner m_CoroutineRunner;
         private readonly IRouteConductor m_RouteConductor;
-        private readonly IWaypoint m_SpawnPoint;
+        private readonly IBasePoint m_SpawnPoint;
 
         public ResourceExtractorFactory(
-            string assetPath,
-            IAssetLoader assetLoader, 
+            object assetAddress,
+            AddressablesAssetLoader assetLoader, 
             ISpeedService speedService,
             ICoroutineRunner coroutineRunner,
             IRouteConductor routeConductor,
-            IWaypoint spawnPoint)
+            IBasePoint spawnPoint)
         {
-            m_AssetPath = assetPath;
+            m_AssetAddress = assetAddress;
             m_AssetLoader = assetLoader;
             m_SpeedService = speedService;
             m_CoroutineRunner = coroutineRunner;
             m_RouteConductor = routeConductor;
             m_SpawnPoint = spawnPoint;
         }
-
-        public Result<IResourceExtractor> Create()
+        
+        public async Task<IResourceExtractor> Create()
         {
-            var bodyLoadResult = m_AssetLoader.LoadSync<ResourceExtractorBody>(m_AssetPath);
-            if (!bodyLoadResult.IsExist)
-            {
-                return new Result<IResourceExtractor>(null, false);
-            }
+            // var instantiateParams = new InstantiationParameters(m_SpawnPoint.Position, Quaternion.identity, null);
+            var instantiateParams = new InstantiationParameters(Vector3.zero, Quaternion.identity, null);
+            var minerBody = await m_AssetLoader
+                .InstantiateAsync<ResourceExtractorBody>(m_AssetAddress, instantiateParams);
 
-            var minerBody = Object.Instantiate(bodyLoadResult.Object, m_SpawnPoint.Position, Quaternion.identity);
-            var miner = new ResourceExtractor(minerBody, m_SpeedService, m_CoroutineRunner);
-            return new Result<IResourceExtractor>(miner, true);
+            var miner = new ResourceExtractor(minerBody, m_SpeedService, m_CoroutineRunner, m_RouteConductor);
+            return miner;
         }
     }
 }

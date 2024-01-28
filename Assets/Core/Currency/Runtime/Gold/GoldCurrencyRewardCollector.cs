@@ -1,18 +1,14 @@
 ﻿using System;
 using Services.Currency.Runtime.Rewards;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Currency.Runtime.Gold
 {
     public class GoldCurrencyRewardCollector : IRewardCollector
     {
-        private readonly GoldCurrencyController m_GoldCurrencyController;
-
-        public GoldCurrencyRewardCollector(GoldCurrencyController goldCurrencyController)
-        {
-            m_GoldCurrencyController = goldCurrencyController;
-        }
-
+        [Inject] private GoldCurrencyController m_GoldCurrencyController;
+        
         public Type GetRewardType()
         {
             return typeof(GoldReward);

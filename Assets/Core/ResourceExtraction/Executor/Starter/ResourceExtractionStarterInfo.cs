@@ -1,6 +1,4 @@
-﻿using Services.Job.Runtime;
-
-namespace Core.ResourceExtraction.Executor.Starter
+﻿namespace Core.ResourceExtraction.Executor.Starter
 {
     public class ResourceExtractionStarterInfo : IJobOperationInfo
     {

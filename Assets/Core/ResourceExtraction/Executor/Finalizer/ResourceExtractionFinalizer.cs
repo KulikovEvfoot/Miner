@@ -1,19 +1,14 @@
-﻿using Services.Job.Runtime;
-
-namespace Core.ResourceExtraction.Executor.Finalizer
+﻿namespace Core.ResourceExtraction.Executor.Finalizer
 {
+    //TODO
     public class ResourceExtractionFinalizer : IJobOperationExecutor
     {
-        private readonly JobInfo m_JobInfo;
-
-        public ResourceExtractionFinalizer(JobInfo jobInfo)
+        public ResourceExtractionFinalizer()
         {
-            m_JobInfo = jobInfo;
         }
 
         public void Execute(IJobOperationInfo jobOperationInfo)
         {
-            m_JobInfo.JobStatus = JobEnvironment.JobStatus.Done;
         }
     }
 }

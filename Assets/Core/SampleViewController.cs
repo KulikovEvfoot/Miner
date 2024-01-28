@@ -1,38 +1,38 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using Common;
+using Core.Currency.Runtime.Gold;
+using Core.ResourceExtraction;
+using Services.AssetLoader.Runtime;
 using Services.Currency.Runtime;
 using UnityEngine;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using Zenject;
 
 namespace Core
 {
-    public class SampleViewController : MonoBehaviour, ICurrencyObserver
+    public class SampleViewController : IInitPhase, ICurrencyObserver
     {
-        [SerializeField] private SampleView m_SampleView;
+        [Inject] private SampleGameConfig m_SampleGameConfig;
+        [Inject] private GoldCurrencyController m_GoldCurrencyController;
+        [Inject] private AddressablesAssetLoader m_AssetLoader;
+        [Inject] private ResourcesExtractionController m_ResourcesExtractionController;
         
-        private ResourceExtractorController m_ResourceExtractorController;
-        private ResourceExtractionJobController m_ResourceExtractionJobController;
-        private ICurrencyController m_GoldCurrencyController;
+        private SampleView m_SampleView;
+        
         private SamplePriceConfig m_SamplePriceConfig;
         private IEventProducer<ICurrencyObserver> m_CurrencyEventProducer;
-
-        public void Init(ResourceExtractorController resourceExtractorController,
-            ResourceExtractionJobController resourceExtractionJobController,
-            ICurrencyController goldCurrencyController,
-            SamplePriceConfig samplePriceConfig)
+        
+        public async Task Init()
         {
-            m_ResourceExtractorController = resourceExtractorController;
-            m_ResourceExtractionJobController = resourceExtractionJobController;
-            m_GoldCurrencyController = goldCurrencyController;
-            m_SamplePriceConfig = samplePriceConfig;
+            m_SampleView = await m_AssetLoader.InstantiateAsync<SampleView>(m_SampleGameConfig.SampleViewReference, new InstantiationParameters());
             
-            m_CurrencyEventProducer = goldCurrencyController.CurrencyEventProducer;
-            m_CurrencyEventProducer.Attach(this);
-
             m_SampleView.Init(CreateMiner, SpeedUpMiners);
             
             m_SampleView.SetGoldCurrencyText(m_GoldCurrencyController.GetValue().ToString());
-            m_SampleView.SetCreateMinerPriceText(samplePriceConfig.CreateMinerPrice.ToString());
-            m_SampleView.SetSpeedUpMinersPriceText(samplePriceConfig.SpeedUpMinersPrice.ToString());
+            m_SampleView.SetCreateMinerPriceText(m_SampleGameConfig.SamplePriceConfig.CreateMinerPrice.ToString());
+            m_SampleView.SetSpeedUpMinersPriceText(m_SampleGameConfig.SamplePriceConfig.SpeedUpMinersPrice.ToString());
+            
+            m_GoldCurrencyController.CurrencyEventProducer.Attach(this);
         }
 
         private void CreateMiner()
@@ -45,8 +45,7 @@ namespace Core
             }
 
             m_GoldCurrencyController.SubtractValue(price);
-            m_ResourceExtractorController.CreateMiner();
-            m_ResourceExtractionJobController.CreateJob();
+            var miner = m_ResourcesExtractionController.CreateMiner();
         }
 
         private void SpeedUpMiners()
@@ -58,19 +57,19 @@ namespace Core
                 return;
             }
 
-            if (!m_ResourceExtractorController.CanSpeedUpMiners())
+            if (!m_ResourcesExtractionController.CanSpeedUpMiners())
             {
                 Debug.Log($"{nameof(SampleViewController)} >>> Miners has max speed");
                 return;
             }
 
             m_GoldCurrencyController.SubtractValue(price);
-            m_ResourceExtractorController.SpeedUpMiners();
+            m_ResourcesExtractionController.SpeedUpMiners();
         }
 
         private void OnDestroy()
         {
-            m_CurrencyEventProducer.Detach(this);
+            m_GoldCurrencyController.CurrencyEventProducer.Detach(this);
         }
 
         public void NotifyOnValueChanged(long value)

@@ -1,9 +1,9 @@
-﻿using Common;
+﻿using System.Threading.Tasks;
 
 namespace Core.ResourceExtraction.ResourceExtractor
 {
     public interface IResourceExtractorFactory
-    {
-        Result<IResourceExtractor> Create();
+    { 
+        Task<IResourceExtractor> Create();
     }
 }

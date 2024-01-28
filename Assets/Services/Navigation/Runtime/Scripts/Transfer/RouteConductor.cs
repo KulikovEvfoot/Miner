@@ -109,7 +109,7 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
             
             for (int i = nextTransitionIndex; i < transitions.Count; i++)
             {
-                lengthToRouteEnd += transitions[i].GetTransitionLenght();
+                lengthToRouteEnd += transitions[i].GetTransitionLength();
             }
 
             return lengthToRouteEnd;

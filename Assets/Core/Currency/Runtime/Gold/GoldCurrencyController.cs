@@ -7,16 +7,10 @@ namespace Core.Currency.Runtime.Gold
     public class GoldCurrencyController : ICurrencyController
     {
         private readonly ICurrencyCalculator m_CurrencyCalculator = new CurrencyCalculator();
-        private readonly GoldCurrencyData m_GoldCurrencyData;
-        private readonly EventProducer<ICurrencyObserver> m_CurrencyEventProducer;
+        private readonly GoldCurrencyData m_GoldCurrencyData = new GoldCurrencyData();
+        private readonly EventProducer<ICurrencyObserver> m_CurrencyEventProducer = new EventProducer<ICurrencyObserver>();
         
         public IEventProducer<ICurrencyObserver> CurrencyEventProducer => m_CurrencyEventProducer;
-
-        public GoldCurrencyController(GoldCurrencyData goldCurrencyData)
-        {
-            m_GoldCurrencyData = goldCurrencyData;
-            m_CurrencyEventProducer = new EventProducer<ICurrencyObserver>();
-        }
         
         public bool AddValue(long amount)
         {

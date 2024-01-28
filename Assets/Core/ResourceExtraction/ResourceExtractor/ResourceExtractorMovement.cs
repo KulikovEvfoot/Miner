@@ -1,12 +1,13 @@
-﻿using Common;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Common;
+using Services.Navigation.Runtime.Scripts;
 using Services.Navigation.Runtime.Scripts.Transfer;
 using Services.Navigation.Runtime.Scripts.Transfer.Speed;
 using UnityEngine;
 
-namespace Services.Navigation.Runtime.Scripts
+namespace Core.ResourceExtraction.ResourceExtractor
 {
     public class ResourceExtractorMovement : IRouteMovement
     {
@@ -20,13 +21,13 @@ namespace Services.Navigation.Runtime.Scripts
         public ResourceExtractorMovement(
             IRouteMoveListener routeMoveListener, 
             ISpeedService speedService,
-            ICoroutineRunner coroutineRunner)
+            ICoroutineRunner coroutineRunner,
+            IRouteConductor routeConductor)
         {
             m_RouteMoveListener = routeMoveListener;
             m_SpeedService = speedService;
             m_CoroutineRunner = coroutineRunner;
-            
-            m_RouteConductor = new RouteConductor();
+            m_RouteConductor = routeConductor;
         }
 
         public void EnRouteMove(IEnumerable<ITransition> transitions)

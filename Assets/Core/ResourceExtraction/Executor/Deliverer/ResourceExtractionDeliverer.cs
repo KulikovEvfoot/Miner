@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using Core.ResourceExtraction.Executor.Starter;
 using Services.Currency.Runtime.Rewards;
-using Services.Job.Runtime;
 
 namespace Core.ResourceExtraction.Executor.Deliverer
 {
@@ -9,14 +7,13 @@ namespace Core.ResourceExtraction.Executor.Deliverer
     {
         private readonly RewardCollectorsController m_RewardCollectorsService;
         private readonly List<IReward> m_CollectedRewards;
-        private readonly IJob m_Job;
 
-        public ResourceExtractionDeliverer(RewardCollectorsController rewardCollectorsService,
-            List<IReward> collectedRewards, IJob job)
+        public ResourceExtractionDeliverer(
+            RewardCollectorsController rewardCollectorsService,
+            List<IReward> collectedRewards)
         {
             m_RewardCollectorsService = rewardCollectorsService;
             m_CollectedRewards = collectedRewards;
-            m_Job = job;
         }
 
         public void Execute(IJobOperationInfo jobOperationInfo)

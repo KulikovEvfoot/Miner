@@ -1,14 +1,16 @@
 ﻿using System.Collections.Generic;
 using Services.Currency.Runtime.Rewards;
 using UnityEngine;
+using Zenject;
 
 namespace Core
 {
-    public class RewardCollectorsController : MonoBehaviour
+    public class RewardCollectorsController
     {
-        private RewardCollectorsService m_RewardCollectorsService;
-        
-        public void Init(List<IRewardCollector> rewardCollectors)
+        private readonly RewardCollectorsService m_RewardCollectorsService;
+
+        [Inject] 
+        public RewardCollectorsController(List<IRewardCollector> rewardCollectors)
         {
             m_RewardCollectorsService = new RewardCollectorsService(rewardCollectors);
         }

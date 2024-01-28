@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4206fb2cc8f4174bb66f8feaec0a254, type: 3}
+  m_Name: SampleGameConfig
+  m_EditorClassIdentifier: 
+  m_MinerBody:
+    m_AssetGUID: 52590d92a82d7884a9d769aa50f8f70a
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  m_SampleViewReference:
+    m_AssetGUID: f76115f10a0fb9b499837198f2a93281
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  m_MineConfig:
+    m_Points:
+    - rid: 0
+    - rid: 1
+    m_MinePassageType: 0
+    m_RouteBuildType: 0
+  m_SamplePriceConfig:
+    m_CreateMinerPrice: 1
+    m_SpeedUpMinersPrice: 1
+  m_SpeedConfig:
+    StartSpeedIndex: 0
+    SpeedSettings:
+    - 10
+  references:
+    version: 2
+    RefIds:
+    - rid: 0
+      type: {class: BasePoint, ns: Core.Mine.Runtime.Point.Base, asm: Assembly-CSharp}
+      data:
+        m_Id: 0
+        m_NeighborsID: 01000000
+        m_Position: {x: 0, y: 0, z: 0}
+    - rid: 1
+      type: {class: GoldResourcePoint, ns: Core.Mine.Runtime.Point.GoldResource, asm: Assembly-CSharp}
+      data:
+        m_Id: 1
+        m_NeighborsID: 00000000
+        m_Position: {x: 0, y: 1, z: 0}
+        m_GoldReward:
+          m_Value: 3
+        m_ViewAddress: GoldResourcePoint

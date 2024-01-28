@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Services.Navigation.Runtime.Scripts;
+using Services.Navigation.Runtime.Scripts.Configs;
 using Services.Navigation.Runtime.Scripts.Transfer;
 using Services.Navigation.Runtime.Scripts.Transfer.Speed;
 using UnityEngine;
@@ -19,12 +20,12 @@ namespace Services.Navigation.Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            var baseWp = new WaypointMock(Vector3.zero);
-            var wp1 = new WaypointMock(new Vector3(0, 1, 0));
+            var baseWp = new Point(0, new[] { 1 }, Vector3.zero);
+            var wp1 = new Point(0, new[] { 0 }, new Vector3(0, 1, 0));
             m_Route = new List<ITransition>
             {
-                new TransitionMock(baseWp, wp1),
-                new TransitionMock(wp1, baseWp)
+                new Transition(baseWp, wp1),
+                new Transition(wp1, baseWp)
             };
             
             m_RouteConductor = new RouteConductor();

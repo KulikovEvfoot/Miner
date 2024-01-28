@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace Core.Mine.Runtime
 {
-    public class StrictRoute : RouteBase
+    public class StrictRoute : IRoute
     {
         [SerializeField] private Transition[] m_Transitions;
         [SerializeField] private Color m_DrawingColor = Color.white;
         
-        public override IEnumerable<ITransition> Transitions => m_Transitions;
+        public IEnumerable<ITransition> Transitions => m_Transitions;
 
         private void OnDrawGizmos()
         {

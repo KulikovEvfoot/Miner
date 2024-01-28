@@ -1,12 +1,13 @@
-﻿using UnityEngine;
+﻿using Services.Navigation.Runtime.Scripts.Configs;
+using UnityEngine;
 
 namespace Services.Navigation.Runtime.Scripts
 {
     public interface ITransition
     {
-        public IWaypoint From { get; }
-        public IWaypoint To { get; }
+        public IPoint From { get; }
+        public IPoint To { get; }
         Vector3 GetTransitionDirection();
-        float GetTransitionLenght();
+        float GetTransitionLength();
     }
 }

@@ -1,18 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Common;
-using Core.Currency.Runtime;
-using Core.Mine.Runtime.Waypoint;
+using Core.Mine.Runtime.Point;
 using Core.ResourceExtraction.Executor.Deliverer;
 using Core.ResourceExtraction.Executor.Finalizer;
 using Core.ResourceExtraction.Executor.Gatherer;
 using Core.ResourceExtraction.Executor.Starter;
 using Services.Currency.Runtime.Rewards;
-using Services.Job.Runtime;
 using Services.Navigation.Runtime.Scripts;
 using Services.Navigation.Runtime.Scripts.Transfer;
 using Services.Navigation.Runtime.Scripts.Transfer.Speed;
-using UnityEngine;
 
 namespace Core.ResourceExtraction.ResourceExtractor
 {
@@ -20,41 +16,29 @@ namespace Core.ResourceExtraction.ResourceExtractor
     {
         private readonly ResourceExtractorBody m_Body;
         private readonly IRouteMovement m_RouteMovement;
-        private readonly Queue<IJob> m_Jobs;
-        private readonly EmployeeInfo m_EmployeeInfo;
         
-        private IJob m_ActiveJob;
-        
+        private IResourceExtractionJob m_ActiveJob;
+
         public ResourceExtractor(
             ResourceExtractorBody body,
             ISpeedService movementSpeedService,
-            ICoroutineRunner coroutineRunner)
+            ICoroutineRunner coroutineRunner,
+            IRouteConductor routeConductor)
         {
             m_Body = body;
-            m_RouteMovement = new ResourceExtractorMovement(this, movementSpeedService, coroutineRunner);
-            
-            m_Jobs = new Queue<IJob>();
-            m_EmployeeInfo = new EmployeeInfo(EmployeeEnvironment.Unemployed);
-
-        }
-        
-        public void EnqueueJob(IJob job)
-        {
-            m_Jobs.Enqueue(job);
-            OnJobQueueChanged();
+            m_RouteMovement = new ResourceExtractorMovement(
+                this,
+                movementSpeedService, 
+                coroutineRunner, 
+                routeConductor);
         }
 
-        public void DequeueJob()
+        public void StartJob(IResourceExtractionJob job)
         {
-            m_Jobs.Dequeue();
-            OnJobQueueChanged();
+            m_ActiveJob = job;
+            m_ActiveJob.Execute(new ResourceExtractionStarterInfo(this));
         }
-        
-        public EmployeeInfo GetEmployeeInfo()
-        {
-            return m_EmployeeInfo;
-        }
-        
+
         public void ResourceGathering(IEnumerable<ITransition> transitions)
         {
             m_RouteMovement.EnRouteMove(transitions);
@@ -94,8 +78,6 @@ namespace Core.ResourceExtraction.ResourceExtractor
         {
             var finalizerInfo = new ResourceExtractionFinalizerInfo();
             m_ActiveJob.Execute(finalizerInfo);
-            
-            m_EmployeeInfo.EmployeeStatus = EmployeeEnvironment.Unemployed;
         }
         
         private void ExtractResources(IEnumerable<IResourcePoint> resourcePoints, int countOfLooping)
@@ -119,33 +101,6 @@ namespace Core.ResourceExtraction.ResourceExtractor
         {
             var delivererInfo = new ResourceExtractionDelivererInfo();
             m_ActiveJob.Execute(delivererInfo);
-        }
-
-        private void OnJobQueueChanged()
-        {
-            TryStartJob();
-        }
-        
-        private bool TryStartJob()
-        {
-            if (m_Jobs.Count <= 0)
-            {
-                return false;
-            }
-            
-            var job = m_Jobs.Peek();
-            if (job.GetJobInfo().JobStatus == JobEnvironment.JobStatus.Todo)
-            {
-                m_ActiveJob = job;
-                var starterInfo = new ResourceExtractionStarterInfo(this);
-                
-                m_ActiveJob.Execute(starterInfo);
-                
-                m_EmployeeInfo.EmployeeStatus = EmployeeEnvironment.Working;
-                return true;
-            }
-            
-            return false;
         }
     }
 }

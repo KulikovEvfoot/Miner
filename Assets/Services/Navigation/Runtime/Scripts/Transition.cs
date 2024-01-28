@@ -1,16 +1,18 @@
-﻿using System;
+﻿using Services.Navigation.Runtime.Scripts.Configs;
 using UnityEngine;
 
 namespace Services.Navigation.Runtime.Scripts
 {
-    [Serializable]
     public class Transition : ITransition
     {
-        [SerializeField] private WaypointBase m_From;
-        [SerializeField] private WaypointBase m_To;
-
-        public IWaypoint From => m_From;
-        public IWaypoint To => m_To;
+        public IPoint From { get; }
+        public IPoint To { get; }
+        
+        public Transition(IPoint from, IPoint to)
+        {
+            From = from;
+            To = to;
+        }
 
         public Vector3 GetTransitionDirection()
         {
@@ -20,7 +22,7 @@ namespace Services.Navigation.Runtime.Scripts
             return direction;
         }
 
-        public float GetTransitionLenght()
+        public float GetTransitionLength()
         {
             var result = Vector3.Distance(To.Position, From.Position);
             return result;
