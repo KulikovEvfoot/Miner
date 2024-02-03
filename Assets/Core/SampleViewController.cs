@@ -13,21 +13,25 @@ namespace Core
     public class SampleViewController : IInitPhase, ICurrencyObserver
     {
         [Inject] private SampleGameConfig m_SampleGameConfig;
+        [Inject] private CanvasProvider m_CanvasProvider;
         [Inject] private GoldCurrencyController m_GoldCurrencyController;
         [Inject] private AddressablesAssetLoader m_AssetLoader;
         [Inject] private ResourcesExtractionController m_ResourcesExtractionController;
         
         private SampleView m_SampleView;
         
-        private SamplePriceConfig m_SamplePriceConfig;
         private IEventProducer<ICurrencyObserver> m_CurrencyEventProducer;
         
         public async Task Init()
         {
-            m_SampleView = await m_AssetLoader.InstantiateAsync<SampleView>(m_SampleGameConfig.SampleViewReference, new InstantiationParameters());
+            m_SampleView = await m_AssetLoader.
+                InstantiateAsync<SampleView>(m_SampleGameConfig.SampleViewReference, new InstantiationParameters());
             
             m_SampleView.Init(CreateMiner, SpeedUpMiners);
-            
+
+            var viewParent = m_CanvasProvider.UICanvas.transform;
+            m_SampleView.transform.SetParentAndNormalize(viewParent);
+                
             m_SampleView.SetGoldCurrencyText(m_GoldCurrencyController.GetValue().ToString());
             m_SampleView.SetCreateMinerPriceText(m_SampleGameConfig.SamplePriceConfig.CreateMinerPrice.ToString());
             m_SampleView.SetSpeedUpMinersPriceText(m_SampleGameConfig.SamplePriceConfig.SpeedUpMinersPrice.ToString());
@@ -35,9 +39,10 @@ namespace Core
             m_GoldCurrencyController.CurrencyEventProducer.Attach(this);
         }
 
+
         private void CreateMiner()
         {
-            var price = m_SamplePriceConfig.CreateMinerPrice;
+            var price = m_SampleGameConfig.SamplePriceConfig.CreateMinerPrice;
             if (!m_GoldCurrencyController.CanSub(price))
             {
                 Debug.Log($"{nameof(SampleViewController)} >>> Not enough currency in {m_GoldCurrencyController.GetType()}");
@@ -45,12 +50,12 @@ namespace Core
             }
 
             m_GoldCurrencyController.SubtractValue(price);
-            var miner = m_ResourcesExtractionController.CreateMiner();
+            m_ResourcesExtractionController.CreateMiner();
         }
 
         private void SpeedUpMiners()
         {
-            var price = m_SamplePriceConfig.SpeedUpMinersPrice;
+            var price = m_SampleGameConfig.SamplePriceConfig.CreateMinerPrice;
             if (!m_GoldCurrencyController.CanSub(price))
             {
                 Debug.Log($"{nameof(SampleViewController)} >>> Not enough currency in {m_GoldCurrencyController.GetType()}");

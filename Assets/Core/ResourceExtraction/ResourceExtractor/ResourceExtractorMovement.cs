@@ -30,15 +30,18 @@ namespace Core.ResourceExtraction.ResourceExtractor
             m_RouteConductor = routeConductor;
         }
 
-        public void EnRouteMove(IEnumerable<ITransition> transitions)
+        public void EnRouteMove(IEnumerable<IPoint> route)
         {
-            m_RouteRoutine = m_CoroutineRunner.StartCoroutine(EnRouteMoveCoroutine(transitions.ToList()));
+            m_RouteRoutine = m_CoroutineRunner.StartCoroutine(EnRouteMoveCoroutine(route.ToList()));
         }
 
-        private IEnumerator EnRouteMoveCoroutine(IList<ITransition> transitions)
+        private IEnumerator EnRouteMoveCoroutine(IReadOnlyList<IPoint> route)
         {
             var previousFrameTime = Time.realtimeSinceStartup;
-            var conductorResult = new RouteConductorResult(transitions[0].From.Position);
+
+            //can set startIndex from save
+            var startIndex = 0;
+            var conductorResult = new RouteConductorResult(startIndex, route[startIndex].Position);
             
             while (true)
             {
@@ -46,14 +49,14 @@ namespace Core.ResourceExtraction.ResourceExtractor
 
                 conductorResult = m_RouteConductor.Conduct(new RouteConductorArgs
                 {
-                    Route = transitions,
-                    TransitionIndex = conductorResult.Index,
-                    Position = conductorResult.Position,
+                    Route = route,
+                    LastPassedPointIndex = conductorResult.LastPassedIndex,
+                    CurrentPosition = conductorResult.CurrentPosition,
                     SpeedService = m_SpeedService,
                     DeltaTime = deltaTime,
-                    RouteMoveListener = m_RouteMoveListener
                 });
                 
+                m_RouteMoveListener.Tick(conductorResult);
                 previousFrameTime = Time.realtimeSinceStartup;
                 yield return null;
             }

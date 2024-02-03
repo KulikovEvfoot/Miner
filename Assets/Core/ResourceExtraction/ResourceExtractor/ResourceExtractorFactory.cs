@@ -2,6 +2,7 @@
 using Common;
 using Core.Mine.Runtime.Point.Base;
 using Services.AssetLoader.Runtime;
+using Services.Navigation.Runtime.Scripts;
 using Services.Navigation.Runtime.Scripts.Transfer;
 using Services.Navigation.Runtime.Scripts.Transfer.Speed;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace Core.ResourceExtraction.ResourceExtractor
         private readonly ISpeedService m_SpeedService;
         private readonly ICoroutineRunner m_CoroutineRunner;
         private readonly IRouteConductor m_RouteConductor;
-        private readonly IBasePoint m_SpawnPoint;
+        private readonly IPoint m_SpawnPoint;
 
         public ResourceExtractorFactory(
             object assetAddress,
@@ -24,7 +25,7 @@ namespace Core.ResourceExtraction.ResourceExtractor
             ISpeedService speedService,
             ICoroutineRunner coroutineRunner,
             IRouteConductor routeConductor,
-            IBasePoint spawnPoint)
+            IPoint spawnPoint)
         {
             m_AssetAddress = assetAddress;
             m_AssetLoader = assetLoader;
@@ -36,7 +37,6 @@ namespace Core.ResourceExtraction.ResourceExtractor
         
         public async Task<IResourceExtractor> Create()
         {
-            // var instantiateParams = new InstantiationParameters(m_SpawnPoint.Position, Quaternion.identity, null);
             var instantiateParams = new InstantiationParameters(Vector3.zero, Quaternion.identity, null);
             var minerBody = await m_AssetLoader
                 .InstantiateAsync<ResourceExtractorBody>(m_AssetAddress, instantiateParams);

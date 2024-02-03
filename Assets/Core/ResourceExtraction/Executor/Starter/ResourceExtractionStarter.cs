@@ -6,14 +6,14 @@ namespace Core.ResourceExtraction.Executor.Starter
 {
     public class ResourceExtractionStarter : IJobOperationExecutor
     {
-        private readonly IEnumerable<ITransition> m_Transitions;
+        private readonly IEnumerable<IPoint> m_Route;
         private readonly List<IReward> m_CollectedRewards;
 
         public ResourceExtractionStarter(
-            IEnumerable<ITransition> transitions,
+            IEnumerable<IPoint> route,
             List<IReward> collectedRewards)
         {
-            m_Transitions = transitions;
+            m_Route = route;
             m_CollectedRewards = collectedRewards;
         }
 
@@ -22,7 +22,7 @@ namespace Core.ResourceExtraction.Executor.Starter
             if (jobOperationInfo is ResourceExtractionStarterInfo info)
             {
                 m_CollectedRewards.Clear();
-                info.ResourceExtractor.ResourceGathering(m_Transitions);
+                info.ResourceExtractor.ResourceGathering(m_Route);
             }
         }
     }

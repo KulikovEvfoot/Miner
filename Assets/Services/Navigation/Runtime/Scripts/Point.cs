@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Services.Navigation.Runtime.Scripts.Configs
+namespace Services.Navigation.Runtime.Scripts
 {
     [Serializable]
     public class Point : IPoint

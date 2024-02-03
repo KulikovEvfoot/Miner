@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Services.Navigation.Runtime.Scripts;
-using Services.Navigation.Runtime.Scripts.Configs;
 using Services.Navigation.Runtime.Scripts.Transfer;
 using Services.Navigation.Runtime.Scripts.Transfer.Speed;
 using UnityEngine;
@@ -13,20 +13,14 @@ namespace Services.Navigation.Tests
         private SpeedConfig m_SpeedConfig;
         private MovementSpeedService m_SpeedService;
         private RouteConductor m_RouteConductor;
-        private List<ITransition> m_Route;
-        
-        private RouteMoveListenerMock m_RouteMoveListenerMock;
+        private List<IPoint> m_Route;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             var baseWp = new Point(0, new[] { 1 }, Vector3.zero);
-            var wp1 = new Point(0, new[] { 0 }, new Vector3(0, 1, 0));
-            m_Route = new List<ITransition>
-            {
-                new Transition(baseWp, wp1),
-                new Transition(wp1, baseWp)
-            };
+            var wp1 = new Point(1, new[] { 0 }, new Vector3(0, 1, 0));
+            m_Route = new List<IPoint> { baseWp, wp1, baseWp };
             
             m_RouteConductor = new RouteConductor();
         }
@@ -36,27 +30,23 @@ namespace Services.Navigation.Tests
         {
             var speedConfig = new SpeedConfig(0, new List<float> { 1, 100000});
             m_SpeedService = new MovementSpeedService(speedConfig);
-            
-            m_RouteMoveListenerMock = new RouteMoveListenerMock();
         }
 
         [Test]
-        public void ShouldPass_1_Transition()
+        public void ShouldPass_1_Point()
         {
             var result = m_RouteConductor.Conduct(new RouteConductorArgs
             {
                 Route = m_Route,
-                TransitionIndex = 0,
-                Position = Vector3.zero,
+                LastPassedPointIndex = 0,
+                CurrentPosition = Vector3.zero,
                 SpeedService = m_SpeedService,
                 DeltaTime = 1f,
-                RouteMoveListener = m_RouteMoveListenerMock
             });
 
-            var listenerResult = m_RouteMoveListenerMock;
-            Assert.AreEqual(listenerResult.Position, new Vector3(0, 1, 0));
-            Assert.AreEqual(listenerResult.PassedTransitionCount, 1);
-            Assert.AreEqual(listenerResult.PassedRoutesCount, 0);
+            Assert.AreEqual(result.CurrentPosition, new Vector3(0, 1, 0));
+            Assert.AreEqual(result.PassedPoints.Count(), 1);
+            Assert.AreEqual(result.PassedRoutesCount, 0);
         }
         
         [Test]
@@ -65,17 +55,15 @@ namespace Services.Navigation.Tests
             var result = m_RouteConductor.Conduct(new RouteConductorArgs
             {
                 Route = m_Route,
-                TransitionIndex = 0,
-                Position = Vector3.zero,
+                LastPassedPointIndex = 0,
+                CurrentPosition = Vector3.zero,
                 SpeedService = m_SpeedService,
                 DeltaTime = 2f,
-                RouteMoveListener = m_RouteMoveListenerMock
             });
 
-            var listenerResult = m_RouteMoveListenerMock;
-            Assert.AreEqual(listenerResult.Position, Vector3.zero);
-            Assert.AreEqual(listenerResult.PassedTransitionCount, 0);
-            Assert.AreEqual(listenerResult.PassedRoutesCount, 1);
+            Assert.AreEqual(result.CurrentPosition, Vector3.zero);
+            Assert.AreEqual(result.PassedPoints.Count(), 0);
+            Assert.AreEqual(result.PassedRoutesCount, 1);
         }
 
         [Test]
@@ -84,17 +72,15 @@ namespace Services.Navigation.Tests
             var result = m_RouteConductor.Conduct(new RouteConductorArgs
             {
                 Route = m_Route,
-                TransitionIndex = 0,
-                Position = Vector3.zero,
+                LastPassedPointIndex = 0,
+                CurrentPosition = Vector3.zero,
                 SpeedService = m_SpeedService,
                 DeltaTime = 2000000f,
-                RouteMoveListener = m_RouteMoveListenerMock
             });
 
-            var listenerResult = m_RouteMoveListenerMock;
-            Assert.AreEqual(listenerResult.Position, Vector3.zero);
-            Assert.AreEqual(listenerResult.PassedTransitionCount, 0);
-            Assert.AreEqual(listenerResult.PassedRoutesCount, 1000000);
+            Assert.AreEqual(result.CurrentPosition, Vector3.zero);
+            Assert.AreEqual(result.PassedPoints.Count(), 0);
+            Assert.AreEqual(result.PassedRoutesCount, 1000000);
         }
         
         [Test]
@@ -103,17 +89,15 @@ namespace Services.Navigation.Tests
             var result = m_RouteConductor.Conduct(new RouteConductorArgs
             {
                 Route = m_Route,
-                TransitionIndex = 0,
-                Position = Vector3.zero,
+                LastPassedPointIndex = 0,
+                CurrentPosition = Vector3.zero,
                 SpeedService = m_SpeedService,
                 DeltaTime = 2000001f,
-                RouteMoveListener = m_RouteMoveListenerMock
             });
 
-            var listenerResult = m_RouteMoveListenerMock;
-            Assert.AreEqual(listenerResult.Position, new Vector3(0, 1, 0));
-            Assert.AreEqual(listenerResult.PassedTransitionCount, 1);
-            Assert.AreEqual(listenerResult.PassedRoutesCount, 1000000);
+            Assert.AreEqual(result.CurrentPosition, new Vector3(0, 1, 0));
+            Assert.AreEqual(result.PassedPoints.Count(), 1);
+            Assert.AreEqual(result.PassedRoutesCount, 1000000);
         }
         
         // [Test]

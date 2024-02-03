@@ -10,71 +10,68 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
         public RouteConductorResult Conduct(RouteConductorArgs args)
         {
             var route = args.Route;
-            var currentTransitionIndex = args.TransitionIndex;
-            var currentPosition = args.Position;
+            var lastPassedPointIndex = args.LastPassedPointIndex;
+            var currentPosition = args.CurrentPosition;
             var speed = args.SpeedService.Speed;
             var deltaTime = args.DeltaTime;
-            var routeMoveListener =  args.RouteMoveListener;
             
             //блок просчета пройденных петель
-            var lengthToRouteEnd = GetLengthToRouteEnd(currentPosition, currentTransitionIndex, route);
+            var nextPointIndex = GetNextPointIndex(lastPassedPointIndex, route);
+            var distanceToRouteEnd = GetDistanceToRouteEnd(currentPosition, nextPointIndex, route);
             
-            var timeToRouteEnd = lengthToRouteEnd / speed;
+            var timeToRouteEnd = distanceToRouteEnd / speed;
             var remainingTimeAfterRoute = deltaTime - timeToRouteEnd;
             var isRoutePassed = remainingTimeAfterRoute > 0 - float.Epsilon;
 
+            var countOfCompletedRoutes = 0;
             if (isRoutePassed)
             {
-                var countOfCompletedRoutes = 1;
+                countOfCompletedRoutes = 1;
                 
-                currentPosition = route.First().From.Position;
-                currentTransitionIndex = 0;
+                currentPosition = route.First().Position;
+                lastPassedPointIndex = 0;
+                nextPointIndex = GetNextPointIndex(lastPassedPointIndex, route);
+
                 deltaTime = Mathf.Abs(remainingTimeAfterRoute);
 
-                var totalRouteLength = GetLengthToRouteEnd(currentPosition, currentTransitionIndex, route);
-                var timeToPassRoute = totalRouteLength / speed;
+                var totalRouteDistance = GetDistanceToRouteEnd(currentPosition, nextPointIndex, route);
+                var timeToPassRoute = totalRouteDistance / speed;
                 var passedLoops = Mathf.FloorToInt(deltaTime / timeToPassRoute);
                 if (passedLoops > 0)
                 {
                     countOfCompletedRoutes += passedLoops;
                     deltaTime %= timeToPassRoute;
                 }
-                
-                routeMoveListener.NotifyOnRouteComplete(route, countOfCompletedRoutes);
             }
             
-            //блок просчета пройденных переходов
-            var passedTransitions = new List<ITransition>();
-            for (int i = currentTransitionIndex; i < route.Count; i++)
+            //блок просчета пройденных точек
+            var passedPoints = new List<IPoint>();
+            for (int i = nextPointIndex; i < route.Count; i++)
             {
-                var currentTransition = route[currentTransitionIndex];
-                var lenghtToTransitionEnd = GetLenghtToTransitionEnd(currentPosition, currentTransition);
-                var timeToNextTransition = lenghtToTransitionEnd / speed;
+                var nextPoint = route[nextPointIndex];
+                var lengthToTransitionEnd = GetDistanceToNextPoint(currentPosition, nextPoint);
+                var timeToNextTransition = lengthToTransitionEnd / speed;
                 var remainingTimeAfterTransition = deltaTime - timeToNextTransition;
                 var isTransitionPassed = remainingTimeAfterTransition > 0 - float.Epsilon;
                 if (isTransitionPassed)
                 {
-                    currentPosition = currentTransition.To.Position;
+                    currentPosition = nextPoint.Position;
                     deltaTime = Math.Abs(remainingTimeAfterTransition);
 
-                    currentTransitionIndex++;
+                    lastPassedPointIndex = nextPointIndex;
+                    nextPointIndex = GetNextPointIndex(nextPointIndex, route);
                     
-                    passedTransitions.Add(currentTransition);
+                    passedPoints.Add(nextPoint);
                     continue;
-                }
-
-                if (passedTransitions.Count > 0)
-                {
-                    routeMoveListener.NotifyOnTransitionComplete(passedTransitions);
                 }
                 
                 break;
             }
 
             //блок просчёта за тик
-            var tickTransition = route[currentTransitionIndex];
-            var nextPosition = tickTransition.To.Position;
-            var rangeToNextPosition = Vector3.Distance(nextPosition, currentPosition);
+            var lastPassedPoint = route[lastPassedPointIndex];
+            var nextPointTick = GetNextPoint(lastPassedPointIndex, route);
+            var rangeToNextPosition = Vector3.Distance(nextPointTick.Position, currentPosition);
             var timeToNextPosition = rangeToNextPosition / speed;
             var remainingTimeAfterTick = timeToNextPosition - deltaTime;
             
@@ -82,48 +79,51 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
             {
                 //точка пройдена (а так блять не должно быть)
             }
-            
-            var direction = tickTransition.GetTransitionDirection();
+
+            var direction = PointUtils.GetTransitionDirection(nextPointTick, lastPassedPoint);
             var newPosition = currentPosition + (direction * speed * deltaTime);
-            var tickInfo = new RouteTickInfo(newPosition);
-            routeMoveListener.Tick(tickInfo);
-
-            return new RouteConductorResult(currentTransitionIndex, newPosition);
+            return new RouteConductorResult(lastPassedPointIndex, newPosition, passedPoints, countOfCompletedRoutes);
         }
         
-        private float GetLenghtToTransitionEnd(Vector3 currentPosition, ITransition transition)
+        private float GetDistanceToNextPoint(Vector3 currentPosition, IPoint nextPoint)
         {
-            var lengthToNextTransition = Vector3.Distance(transition.To.Position, currentPosition); 
-            return lengthToNextTransition;
+            var distanceToNextPoint = Vector3.Distance(nextPoint.Position, currentPosition); 
+            return distanceToNextPoint;
         }
         
-        private float GetLengthToRouteEnd(Vector3 currentPosition, int currentIndex, IList<ITransition> transitions)
+        private float GetDistanceToRouteEnd(Vector3 currentPosition, int nextPointIndex, IReadOnlyList<IPoint> route)
         {
-            var lenghtToTransitionEnd = GetLenghtToTransitionEnd(currentPosition, transitions[currentIndex]);
-            var lengthToRouteEnd = lenghtToTransitionEnd;
-            var nextTransitionIndex = GetNextTransitionIndex(currentIndex, transitions);
-            if (nextTransitionIndex == 0)
+            var distanceToNextPoint = GetDistanceToNextPoint(currentPosition, route[nextPointIndex]);
+            if (nextPointIndex == 0)
             {
-                return lengthToRouteEnd;
+                return distanceToNextPoint;
             }
+
+            var lastPassedPoint = nextPointIndex;
+            nextPointIndex = GetNextPointIndex(nextPointIndex, route);
             
-            for (int i = nextTransitionIndex; i < transitions.Count; i++)
+            for (int i = nextPointIndex; i < route.Count; i++)
             {
-                lengthToRouteEnd += transitions[i].GetTransitionLength();
+                distanceToNextPoint += PointUtils.GetTransitionLength(route[lastPassedPoint], route[nextPointIndex]);
             }
 
-            return lengthToRouteEnd;
+            return distanceToNextPoint;
         }
         
-        private int GetNextTransitionIndex(int currentIndex, IList<ITransition> transitions)
+        private int GetNextPointIndex(int lastPassedPointIndex, IReadOnlyList<IPoint> route)
         {
-            var nextIndex = currentIndex + 1;
-            if (transitions.Count == currentIndex + 1)
+            var nextIndex = lastPassedPointIndex + 1;
+            if (nextIndex == route.Count)
             {
                 return 0;
             }
 
             return nextIndex;
+        }
+
+        private IPoint GetNextPoint(int lastPassedPointIndex, IReadOnlyList<IPoint> route)
+        {
+            return route[GetNextPointIndex(lastPassedPointIndex, route)];
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Common;
 using Core.Mine.Runtime.Point;
+using Core.Mine.Runtime.Point.Base;
 using Core.ResourceExtraction.Executor.Deliverer;
 using Core.ResourceExtraction.Executor.Finalizer;
 using Core.ResourceExtraction.Executor.Gatherer;
@@ -18,6 +20,9 @@ namespace Core.ResourceExtraction.ResourceExtractor
         private readonly IRouteMovement m_RouteMovement;
         
         private IResourceExtractionJob m_ActiveJob;
+
+        private List<IPoint> m_ActiveRoute = new List<IPoint>();
+        private List<IPoint> m_PassedPointsCache = new List<IPoint>();
 
         public ResourceExtractor(
             ResourceExtractorBody body,
@@ -39,27 +44,41 @@ namespace Core.ResourceExtraction.ResourceExtractor
             m_ActiveJob.Execute(new ResourceExtractionStarterInfo(this));
         }
 
-        public void ResourceGathering(IEnumerable<ITransition> transitions)
+        public void ResourceGathering(IEnumerable<IPoint> route)
         {
-            m_RouteMovement.EnRouteMove(transitions);
+            m_RouteMovement.EnRouteMove(route);
+            m_ActiveRoute = route.ToList();
         }
-
-        public void Tick(RouteTickInfo routeTickInfo)
+        
+        public void Tick(RouteConductorResult routeTickInfo)
         {
-            m_Body.Move(routeTickInfo.Position);
+            m_Body.Move(routeTickInfo.CurrentPosition);
+            foreach (var passedPoint in routeTickInfo.PassedPoints)
+            {
+                m_PassedPointsCache.Add(passedPoint);
+                if (passedPoint is BasePoint)
+                {
+                    OnRouteComplete(m_PassedPointsCache, 1);
+                }
+            }
+
+            if (routeTickInfo.PassedRoutesCount > 0)
+            {
+                if (m_PassedPointsCache.Count == 0)
+                {
+                    m_PassedPointsCache = m_ActiveRoute;
+                }
+                
+                OnRouteComplete(m_PassedPointsCache, routeTickInfo.PassedRoutesCount);
+            }
         }
-
-        public void NotifyOnTransitionComplete(IEnumerable<ITransition> passedTransitions)
-        {
-
-        }
-
-        public void NotifyOnRouteComplete(IEnumerable<ITransition> route, int countOfCompletedLoops)
+        
+        private void OnRouteComplete(IEnumerable<IPoint> route, int countOfCompletedLoops)
         {
             var resourcePoints = new List<IResourcePoint>();
-            foreach (var transition in route)
+            foreach (var point in route)
             {
-                if (transition.To is IResourcePoint resourcePoint)
+                if (point is IResourcePoint resourcePoint)
                 {
                     resourcePoints.Add(resourcePoint);
                 }
@@ -69,7 +88,8 @@ namespace Core.ResourceExtraction.ResourceExtractor
             {
                 return;
             }
-            
+
+            m_PassedPointsCache.Clear();
             ExtractResources(resourcePoints, countOfCompletedLoops);
             DeliverResource();
         }

@@ -1,22 +1,33 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Services.Navigation.Runtime.Scripts.Transfer
 {
     public struct RouteConductorResult
     {
-        public int Index;
-        public Vector3 Position;
+        public int LastPassedIndex { get; }
+        public Vector3 CurrentPosition { get; }
+        public IReadOnlyList<IPoint> PassedPoints { get; }
+        public int PassedRoutesCount { get; }
 
-        public RouteConductorResult(Vector3 position)
+        public RouteConductorResult(int lastPassedIndex, Vector3 currentPosition)
         {
-            Index = 0;
-            Position = position;
+            LastPassedIndex = lastPassedIndex;
+            CurrentPosition = currentPosition;
+            PassedPoints = default;
+            PassedRoutesCount = default;
         }
-        
-        public RouteConductorResult(int index, Vector3 position)
+
+        public RouteConductorResult(
+            int lastPassedIndex,
+            Vector3 currentPosition,
+            IReadOnlyList<IPoint> passedPoints,
+            int passedRoutesCount)
         {
-            Index = index;
-            Position = position;
+            LastPassedIndex = lastPassedIndex;
+            CurrentPosition = currentPosition;
+            PassedPoints = passedPoints;
+            PassedRoutesCount = passedRoutesCount;
         }
     }
 }

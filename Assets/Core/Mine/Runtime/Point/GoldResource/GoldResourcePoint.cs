@@ -9,6 +9,8 @@ namespace Core.Mine.Runtime.Point.GoldResource
     [Serializable]
     public class GoldResourcePoint : IResourcePoint
     {
+        [SerializeField, HideInInspector] private string m_Name = nameof(GoldResourcePoint);
+
         [SerializeField] private int m_Id;
         [SerializeField] private int[] m_NeighborsID;
         [SerializeField] private Vector3 m_Position;
@@ -21,13 +23,11 @@ namespace Core.Mine.Runtime.Point.GoldResource
         public IEnumerable<IResourceReward> ResourceRewards => new[] { m_GoldReward };
         public string ViewAddress => m_ViewAddress;
 
-        public GoldResourcePoint(int id, int[] neighborsID, Vector3 position, GoldReward goldReward, string viewAddress)
+        public GoldResourcePoint(int id, int[] neighborsID, Vector3 position)
         {
             m_Id = id;
             m_NeighborsID = neighborsID;
             m_Position = position;
-            m_GoldReward = goldReward;
-            m_ViewAddress = viewAddress;
         }
 
         public IEnumerable<IResourceReward> ExtractResources(int countOfLooping)

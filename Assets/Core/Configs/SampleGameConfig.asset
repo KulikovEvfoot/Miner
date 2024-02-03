@@ -22,34 +22,17 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
-  m_MineConfig:
-    m_Points:
-    - rid: 0
-    - rid: 1
-    m_MinePassageType: 0
-    m_RouteBuildType: 0
+  m_MineConfig: {fileID: 11400000, guid: ed6f658f2554a5246b1a50b60fc78365, type: 2}
   m_SamplePriceConfig:
     m_CreateMinerPrice: 1
     m_SpeedUpMinersPrice: 1
   m_SpeedConfig:
     StartSpeedIndex: 0
     SpeedSettings:
-    - 10
-  references:
-    version: 2
-    RefIds:
-    - rid: 0
-      type: {class: BasePoint, ns: Core.Mine.Runtime.Point.Base, asm: Assembly-CSharp}
-      data:
-        m_Id: 0
-        m_NeighborsID: 01000000
-        m_Position: {x: 0, y: 0, z: 0}
-    - rid: 1
-      type: {class: GoldResourcePoint, ns: Core.Mine.Runtime.Point.GoldResource, asm: Assembly-CSharp}
-      data:
-        m_Id: 1
-        m_NeighborsID: 00000000
-        m_Position: {x: 0, y: 1, z: 0}
-        m_GoldReward:
-          m_Value: 3
-        m_ViewAddress: GoldResourcePoint
+    - 50
+    - 100
+    - 150
+    - 200
+    - 250
+  m_CountOfMinersAtStart: 100
+  m_GoldOnStart: 0

@@ -5,20 +5,20 @@ namespace Core.ResourceExtraction
 {
     public class ResourceExtractionJobFactory
     {
-        private readonly IEnumerable<ITransition> m_Transitions;
+        private readonly IEnumerable<IPoint> m_Route;
         private readonly RewardCollectorsController m_RewardCollectorsService;
 
         public ResourceExtractionJobFactory(
-            IEnumerable<ITransition> transitions,
+            IEnumerable<IPoint> route,
             RewardCollectorsController rewardCollectorsService)
         {
-            m_Transitions = transitions;
+            m_Route = route;
             m_RewardCollectorsService = rewardCollectorsService;
         }
 
         public ResourceExtractionJob Create()
         {
-            var job = new ResourceExtractionJob(m_Transitions, m_RewardCollectorsService);
+            var job = new ResourceExtractionJob(m_Route, m_RewardCollectorsService);
             return job;
         }
     }

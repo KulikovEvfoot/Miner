@@ -1,4 +1,4 @@
-using Services.Navigation.Runtime.Scripts.Configs;
+using Services.Navigation.Runtime.Scripts;
 
 namespace Core.Mine.Runtime.Point.Base
 {

@@ -6,11 +6,10 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
 {
     public struct RouteConductorArgs
     {
-        public IList<ITransition> Route;
-        public int TransitionIndex;
-        public Vector3 Position;
+        public IReadOnlyList<IPoint> Route;
+        public int LastPassedPointIndex;
+        public Vector3 CurrentPosition;
         public ISpeedService SpeedService;
         public float DeltaTime;
-        public IRouteMoveListener RouteMoveListener;
     }
 }

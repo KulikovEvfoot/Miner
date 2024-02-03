@@ -4,6 +4,6 @@ namespace Services.Navigation.Runtime.Scripts
 {
     public interface IRouteMovement
     {
-        void EnRouteMove(IEnumerable<ITransition> transitions);
+        void EnRouteMove(IEnumerable<IPoint> route);
     }
 }

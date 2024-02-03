@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Services.Navigation.Runtime.Scripts.Configs
+namespace Services.Navigation.Runtime.Scripts
 {
     public interface IPoint
     {

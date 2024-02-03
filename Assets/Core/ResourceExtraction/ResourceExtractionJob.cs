@@ -12,7 +12,7 @@ namespace Core.ResourceExtraction
 {
     public class ResourceExtractionJob : IResourceExtractionJob
     {
-        private readonly IEnumerable<ITransition> m_Transitions;
+        private readonly IEnumerable<IPoint> m_Route;
         private readonly RewardCollectorsController m_RewardCollectorsService;
         private readonly Dictionary<Type, IJobOperationExecutor> m_JobProgressMap;
         
@@ -24,17 +24,17 @@ namespace Core.ResourceExtraction
         private List<IReward> m_CollectedRewards;
 
         public ResourceExtractionJob(
-            IEnumerable<ITransition> transitions,
+            IEnumerable<IPoint> route,
             RewardCollectorsController rewardCollectorsService)
         {
-            m_Transitions = transitions;
+            m_Route = route;
             m_RewardCollectorsService = rewardCollectorsService;
 
             m_CollectedRewards = new List<IReward>();
             
             m_JobProgressMap = new Dictionary<Type, IJobOperationExecutor>();
             
-            m_ResourceExtractionStarter = new ResourceExtractionStarter(m_Transitions, m_CollectedRewards);
+            m_ResourceExtractionStarter = new ResourceExtractionStarter(m_Route, m_CollectedRewards);
             m_JobProgressMap.Add(typeof(ResourceExtractionStarterInfo), m_ResourceExtractionStarter);
             
             m_ResourceExtractionFinalizer = new ResourceExtractionFinalizer();

@@ -5,7 +5,8 @@ namespace Core.Mine.Runtime.Point.Base
 {
     [Serializable]
     public class BasePoint : IBasePoint
-    {
+    { 
+        [SerializeField, HideInInspector] private string m_Name = nameof(BasePoint);
         [SerializeField] private int m_Id;
         [SerializeField] private int[] m_NeighborsID;
         [SerializeField] private Vector3 m_Position;

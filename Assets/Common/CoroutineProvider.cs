@@ -1,8 +1,7 @@
 using System.Collections;
-using Common;
 using UnityEngine;
 
-namespace Core
+namespace Common
 {
     public class CoroutineProvider : MonoBehaviour, ICoroutineRunner
     {

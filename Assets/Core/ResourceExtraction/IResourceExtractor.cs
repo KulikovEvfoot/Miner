@@ -6,7 +6,7 @@ namespace Core.ResourceExtraction
     public interface IResourceExtractor
     {
         void StartJob(IResourceExtractionJob job);
-        void ResourceGathering(IEnumerable<ITransition> transitions);
+        void ResourceGathering(IEnumerable<IPoint> route);
         void FinalizeJob();
     }
 }

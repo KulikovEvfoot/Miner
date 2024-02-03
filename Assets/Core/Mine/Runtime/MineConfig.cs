@@ -1,50 +1,81 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Mine.Runtime.Point.Base;
-using Services.Navigation.Runtime.Scripts.Configs;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Core.Mine.Runtime.RouteBuildType;
+using Services.Navigation.Runtime.Scripts;
 using UnityEngine;
 
 namespace Core.Mine.Runtime
 {
-    [Serializable]
-    public class MineConfig
+    [CreateAssetMenu(fileName = "MineConfig", menuName = "Config/MineConfig", order = 0)]
+    public class MineConfig : ScriptableObject, IMineConfig
     {
-        [SerializeReference] private List<IPoint> m_Points = new List<IPoint>()
-            // {
-            //     new BasePoint(0, new []{1}, Vector3.zero),
-            //     new GoldResourcePoint(1, new []{0}, new Vector3(0,1,0), new GoldReward(3), "GoldResourcePoint")
-            // };
-            ;
-        [SerializeField] private MinePassageType m_MinePassageType;
-        [SerializeField] private RouteBuildType m_RouteBuildType;
-        
-        public IReadOnlyList<IPoint> Points => m_Points;
+        [SerializeReference] public List<IPoint> Points;
+        [SerializeReference] public IRouteBuildType RouteBuildType;
 
-        public void AddBasePoint()
+        public IRouteBuildType GetRouteBuildType() => RouteBuildType;
+
+        public MineMap GetMineMap()
         {
-            m_Points.Add(new BasePoint(0, new []{1}, new Vector3()));
+            var points = GetPoints();
+            var navigationMap = GetNavigationMap();
+            var mineMap = new MineMap(points, navigationMap);
+            return mineMap;
         }
         
-        // [ContextMenu("ExFillPoints")]
-        // private void ExFillPoints()
-        // {
-        //     m_Points = new List<IPoint>()
-        //     {
-        //         new BasePoint(0, new []{1}, Vector3.zero),
-        //         new GoldResourcePoint(1, new []{0}, new Vector3(0,1,0), new GoldReward(3), "GoldResourcePoint")
-        //     };
-        // }
-    }
+        private IReadOnlyDictionary<int, IPoint> GetPoints()
+        {
+            return Points.ToDictionary(point => point.Id);
+        }
+        
+        private IReadOnlyDictionary<IPoint, IReadOnlyList<IPoint>> GetNavigationMap()
+        {
+            var navigationMap = new Dictionary<IPoint, IReadOnlyList<IPoint>>();
 
-    public enum MinePassageType
-    {
-        AllMinesInTurn = 0,
-        ReturnToBaseAfterEachMine = 1,
-    }
+            foreach (var point in Points)
+            {
+                if (navigationMap.ContainsKey(point))
+                {
+                    continue;
+                }
 
-    public enum RouteBuildType
-    {
-        ByConfigIndexes = 0,
-        ByPathfindingAlgorithm = 1,
+                var route = new Dictionary<int, IPoint>();
+                foreach (var neighborID in point.NeighborsID)
+                {
+                    if (point.Id == neighborID)
+                    {
+                        Debug.LogError(
+                            $"[{nameof(MineConfig)}]: Point can't have a neighbor with the same identity." +
+                            $"Id = {point.Id}");
+
+                        return null;
+                    }
+
+                    var neighbour = Points.FirstOrDefault(p => p.Id == neighborID);
+                    if (neighbour == null)
+                    {
+                        Debug.LogError(
+                            $"[{nameof(MineConfig)}]: Can't find neighbour. " +
+                            $"Point id = {point.Id}, neighbor id = {neighborID}");
+
+                        return null;
+                    }
+
+                    if (route.ContainsKey(neighbour.Id))
+                    {
+                        Debug.LogError(
+                            $"[{nameof(MineConfig)}]: Duplicate id. " +
+                            $"Point id = {point.Id}, neighbor id = {neighborID}");
+
+                        return null;
+                    }
+
+                    route.Add(neighborID, neighbour);
+                }
+
+                navigationMap.Add(point, new List<IPoint>(route.Values));
+            }
+
+            return navigationMap;
+        }
     }
 }
