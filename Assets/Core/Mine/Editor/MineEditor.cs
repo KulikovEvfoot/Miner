@@ -112,6 +112,11 @@ namespace Core.Mine.Editor
                 }
             }
             
+            if (e.type == EventType.MouseDown && e.button == 1)
+            {
+                m_CurrentState = string.Empty;
+            }
+            
             SceneView.RepaintAll();
         }
 
