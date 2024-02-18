@@ -12,7 +12,7 @@ namespace Core.ResourceExtraction
 {
     public class ResourceExtractionJob : IResourceExtractionJob
     {
-        private readonly IEnumerable<IPoint> m_Route;
+        private readonly IRoute m_Route;
         private readonly RewardCollectorsController m_RewardCollectorsService;
         private readonly Dictionary<Type, IJobOperationExecutor> m_JobProgressMap;
         
@@ -24,7 +24,7 @@ namespace Core.ResourceExtraction
         private List<IReward> m_CollectedRewards;
 
         public ResourceExtractionJob(
-            IEnumerable<IPoint> route,
+            IRoute route,
             RewardCollectorsController rewardCollectorsService)
         {
             m_Route = route;

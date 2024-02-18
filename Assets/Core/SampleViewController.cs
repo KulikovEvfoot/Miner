@@ -36,7 +36,7 @@ namespace Core
             m_SampleView.SetCreateMinerPriceText(m_SampleGameConfig.SamplePriceConfig.CreateMinerPrice.ToString());
             m_SampleView.SetSpeedUpMinersPriceText(m_SampleGameConfig.SamplePriceConfig.SpeedUpMinersPrice.ToString());
             
-            m_GoldCurrencyController.CurrencyEventProducer.Attach(this);
+            m_GoldCurrencyController.EventProducer.Attach(this);
         }
 
 
@@ -74,7 +74,7 @@ namespace Core
 
         private void OnDestroy()
         {
-            m_GoldCurrencyController.CurrencyEventProducer.Detach(this);
+            m_GoldCurrencyController.EventProducer.Detach(this);
         }
 
         public void NotifyOnValueChanged(long value)

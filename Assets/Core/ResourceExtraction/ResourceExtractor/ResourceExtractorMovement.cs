@@ -30,31 +30,33 @@ namespace Core.ResourceExtraction.ResourceExtractor
             m_RouteConductor = routeConductor;
         }
 
-        public void EnRouteMove(IEnumerable<IPoint> route)
+        public void EnRouteMove(IRoute route)
         {
-            m_RouteRoutine = m_CoroutineRunner.StartCoroutine(EnRouteMoveCoroutine(route.ToList()));
+            m_RouteRoutine = m_CoroutineRunner.StartCoroutine(EnRouteMoveCoroutine(route));
         }
 
-        private IEnumerator EnRouteMoveCoroutine(IReadOnlyList<IPoint> route)
+        private IEnumerator EnRouteMoveCoroutine(IRoute route)
         {
             var previousFrameTime = Time.realtimeSinceStartup;
 
             //can set startIndex from save
-            var startIndex = 0;
-            var conductorResult = new RouteConductorResult(startIndex, route[startIndex].Position);
+            var routeTravelInfo = new RouteTravelInfo(
+                0,
+                0,
+                route.Highways[0].Points[0].Position,
+                previousFrameTime);
             
             while (true)
             {
                 var deltaTime = Time.realtimeSinceStartup - previousFrameTime;
+                routeTravelInfo.UpdateDeltaTime(deltaTime);
+                
+                var conductorResult = m_RouteConductor.Conduct(new RouteConductorArgs(
+                    route,
+                    m_SpeedService.Speed, 
+                    routeTravelInfo));
 
-                conductorResult = m_RouteConductor.Conduct(new RouteConductorArgs
-                {
-                    Route = route,
-                    LastPassedPointIndex = conductorResult.LastPassedIndex,
-                    CurrentPosition = conductorResult.CurrentPosition,
-                    SpeedService = m_SpeedService,
-                    DeltaTime = deltaTime,
-                });
+                routeTravelInfo = conductorResult.RouteTravelInfo;
                 
                 m_RouteMoveListener.Tick(conductorResult);
                 previousFrameTime = Time.realtimeSinceStartup;

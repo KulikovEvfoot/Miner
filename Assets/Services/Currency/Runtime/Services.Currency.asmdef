@@ -1,0 +1,16 @@
+{
+    "name": "Services.Currency.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d34df09c085353f438041c7509757500"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

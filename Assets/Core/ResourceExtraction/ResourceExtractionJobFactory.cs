@@ -5,11 +5,11 @@ namespace Core.ResourceExtraction
 {
     public class ResourceExtractionJobFactory
     {
-        private readonly IEnumerable<IPoint> m_Route;
+        private readonly IRoute m_Route;
         private readonly RewardCollectorsController m_RewardCollectorsService;
 
         public ResourceExtractionJobFactory(
-            IEnumerable<IPoint> route,
+            IRoute route,
             RewardCollectorsController rewardCollectorsService)
         {
             m_Route = route;

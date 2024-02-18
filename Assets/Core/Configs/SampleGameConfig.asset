@@ -34,5 +34,5 @@ MonoBehaviour:
     - 150
     - 200
     - 250
-  m_CountOfMinersAtStart: 100
+  m_CountOfMinersAtStart: 1
   m_GoldOnStart: 0

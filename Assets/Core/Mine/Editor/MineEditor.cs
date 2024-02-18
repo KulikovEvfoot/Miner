@@ -143,12 +143,19 @@ namespace Core.Mine.Editor
             {
                 var from = pair.Key;
                 DrawWireCube(from.Position, Vector3.one, Color.green);
+
+                // from.Id.ToString()v
+                var style = new GUIStyle
+                {
+                    normal = { textColor = Color.red }, 
+                    fontSize = 14
+                };
                 
-                Handles.Label(from.Position, from.Id.ToString(), new GUIStyle(from.Id.ToString()));
+                Handles.Label(from.Position, from.Id.ToString(), style);
                 
                 foreach (var to in pair.Value)
                 {
-                    var direction = PointUtils.GetTransitionDirection(to, pair.Key);
+                    var direction = NavigationUtils.GetTransitionDirection(to, pair.Key);
                     if (direction.normalized == Vector3.zero)
                     {
                         continue;

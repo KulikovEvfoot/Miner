@@ -22,7 +22,7 @@ namespace Core.Mine.Runtime
             m_MineConfig = mineConfig;
         }
 
-        public IReadOnlyList<IPoint> Create()
+        public IRoute Create()
         {
             var routeBuildType = m_MineConfig.GetRouteBuildType();
             var routeBuildStrategy = m_BuildTypes.GetValueOrDefault(routeBuildType.GetType());
@@ -35,8 +35,7 @@ namespace Core.Mine.Runtime
             
             var mineMap = m_MineConfig.GetMineMap();
            
-            var route
-                = routeBuildStrategy.BuildRoute(mineMap, routeBuildType);
+            var route = routeBuildStrategy.BuildRoute(mineMap, routeBuildType);
 
             return route;
         }

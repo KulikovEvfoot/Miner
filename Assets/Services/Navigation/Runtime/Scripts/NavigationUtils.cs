@@ -2,7 +2,7 @@
 
 namespace Services.Navigation.Runtime.Scripts
 {
-    public static class PointUtils
+    public static class NavigationUtils
     {
         public static Vector3 GetTransitionDirection(IPoint to, IPoint from)
         {

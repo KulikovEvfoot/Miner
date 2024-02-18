@@ -6,11 +6,11 @@ namespace Core.ResourceExtraction.Executor.Starter
 {
     public class ResourceExtractionStarter : IJobOperationExecutor
     {
-        private readonly IEnumerable<IPoint> m_Route;
+        private readonly IRoute m_Route;
         private readonly List<IReward> m_CollectedRewards;
 
         public ResourceExtractionStarter(
-            IEnumerable<IPoint> route,
+            IRoute route,
             List<IReward> collectedRewards)
         {
             m_Route = route;

@@ -20,10 +20,7 @@ namespace Core.ResourceExtraction.ResourceExtractor
         private readonly IRouteMovement m_RouteMovement;
         
         private IResourceExtractionJob m_ActiveJob;
-
-        private List<IPoint> m_ActiveRoute = new List<IPoint>();
-        private List<IPoint> m_PassedPointsCache = new List<IPoint>();
-
+        
         public ResourceExtractor(
             ResourceExtractorBody body,
             ISpeedService movementSpeedService,
@@ -44,43 +41,37 @@ namespace Core.ResourceExtraction.ResourceExtractor
             m_ActiveJob.Execute(new ResourceExtractionStarterInfo(this));
         }
 
-        public void ResourceGathering(IEnumerable<IPoint> route)
+        public void ResourceGathering(IRoute route)
         {
             m_RouteMovement.EnRouteMove(route);
-            m_ActiveRoute = route.ToList();
         }
         
         public void Tick(RouteConductorResult routeTickInfo)
         {
-            m_Body.Move(routeTickInfo.CurrentPosition);
-            foreach (var passedPoint in routeTickInfo.PassedPoints)
-            {
-                m_PassedPointsCache.Add(passedPoint);
-                if (passedPoint is BasePoint)
-                {
-                    OnRouteComplete(m_PassedPointsCache, 1);
-                }
-            }
-
+            m_Body.Move(routeTickInfo.RouteTravelInfo.CurrentPosition);
+            
             if (routeTickInfo.PassedRoutesCount > 0)
             {
-                if (m_PassedPointsCache.Count == 0)
-                {
-                    m_PassedPointsCache = m_ActiveRoute;
-                }
-                
-                OnRouteComplete(m_PassedPointsCache, routeTickInfo.PassedRoutesCount);
+                OnHighwaysComplete(routeTickInfo.Route.Highways, routeTickInfo.PassedRoutesCount);
+            }
+
+            if (routeTickInfo.PassedHighways.Count > 0)
+            {
+                OnHighwaysComplete(routeTickInfo.PassedHighways, 1);
             }
         }
         
-        private void OnRouteComplete(IEnumerable<IPoint> route, int countOfCompletedLoops)
+        private void OnHighwaysComplete(IEnumerable<IHighway> highways, int countOfCompletedLoops)
         {
-            var resourcePoints = new List<IResourcePoint>();
-            foreach (var point in route)
+            var resourcePoints = new HashSet<IResourcePoint>();
+            foreach (var highway in highways)
             {
-                if (point is IResourcePoint resourcePoint)
+                foreach (var point in highway.Points)
                 {
-                    resourcePoints.Add(resourcePoint);
+                    if (point is IResourcePoint resourcePoint)
+                    {
+                        resourcePoints.Add(resourcePoint);
+                    }
                 }
             }
             
@@ -88,8 +79,7 @@ namespace Core.ResourceExtraction.ResourceExtractor
             {
                 return;
             }
-
-            m_PassedPointsCache.Clear();
+        
             ExtractResources(resourcePoints, countOfCompletedLoops);
             DeliverResource();
         }
@@ -102,11 +92,15 @@ namespace Core.ResourceExtraction.ResourceExtractor
         
         private void ExtractResources(IEnumerable<IResourcePoint> resourcePoints, int countOfLooping)
         {
-            var rewards = new List<IReward>();
+            //TODO вынести в отдельный сервис все вычисления
+            var rewards = new HashSet<IReward>();
             foreach (var resourcePoint in resourcePoints)
             {
                 var resourceRewards = resourcePoint.ExtractResources(countOfLooping);
-                rewards.AddRange(resourceRewards);
+                foreach (var resourceReward in resourceRewards)
+                {
+                    rewards.Add(resourceReward);
+                }
             }
             
             var gatheringInfo = new ResourceExtractionGatheringInfo

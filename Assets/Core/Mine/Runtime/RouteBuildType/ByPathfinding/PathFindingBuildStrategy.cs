@@ -20,7 +20,7 @@ namespace Core.Mine.Runtime.RouteBuildType.ByPathfinding
             };
         }
 
-        public IReadOnlyList<IPoint> BuildRoute(MineMap mineMap, IRouteBuildType routeBuildType)
+        public IRoute BuildRoute(MineMap mineMap, IRouteBuildType routeBuildType)
         {
             if (routeBuildType is ByPathfindingBuildType pathfindingBuildType)
             {
@@ -36,65 +36,72 @@ namespace Core.Mine.Runtime.RouteBuildType.ByPathfinding
                 
                 var pathfindingAlgorithm = 
                     m_PathfindingAlgorithms.GetValueOrDefault(pathfindingBuildType.PathfindingAlgorithmType);
-                
-                var path = new List<IPoint>();
 
-                var from = FindBasePoint(navigationMap);
-                
-                foreach (var resourcePoint in resourcePoints)
+                if (pathfindingBuildType.ReturnToBaseAfterResourcePoint)
                 {
-                    var routeToResourcePoint 
-                        = pathfindingAlgorithm.Find(navigationMap, from, resourcePoint);
-
-                    Combine(path, routeToResourcePoint);
-                    
-                    if (pathfindingBuildType.ReturnToBaseAfterResourcePoint)
-                    {
-                        var copy = routeToResourcePoint.ToList();
-                        copy.Reverse();
-                        Combine(path, copy);
-                        from = path[0];
-                        continue;
-                    }
-                    
-                    from = path[path.Count - 1];
+                    return ReturnToBaseAlgorithm(resourcePoints, pathfindingAlgorithm, navigationMap);
                 }
 
-                if (!pathfindingBuildType.ReturnToBaseAfterResourcePoint)
-                {
-                    var basePoint = FindBasePoint(navigationMap);
-                    var lastPoint = path.Last();
-                    var routeToBase = pathfindingAlgorithm.Find(navigationMap, lastPoint, basePoint);
-                    Combine(path, routeToBase);
-                }
-                
-                return path;
+                return DefaultSearchingAlgorithm(resourcePoints, pathfindingAlgorithm, navigationMap);
             }
 
             Debug.LogError("Can't match types");
             return null;
         }
 
+        private IRoute DefaultSearchingAlgorithm(List<IResourcePoint> resourcePoints,
+            IPathfindingAlgorithm pathfindingAlgorithm,
+            IReadOnlyDictionary<IPoint, IReadOnlyList<IPoint>> navigationMap)
+        {
+            var points = new List<IPoint>();
+            var basePoint = FindBasePoint(navigationMap);
+            var from = basePoint;
+            foreach (var resourcePoint in resourcePoints)
+            {
+                var routeToResourcePoint 
+                    = pathfindingAlgorithm.Find(navigationMap, from, resourcePoint);
+                
+                from = routeToResourcePoint[^1];
+
+                points.AddRange(routeToResourcePoint);
+            }
+            
+            points.AddRange(pathfindingAlgorithm.Find(navigationMap, from, basePoint));
+            
+            var highway = new Highway(points);
+            var highways = new List<IHighway> { highway };
+            return new Route(highways);
+        }
+
+        private IRoute ReturnToBaseAlgorithm(
+            List<IResourcePoint> resourcePoints,
+            IPathfindingAlgorithm pathfindingAlgorithm,
+            IReadOnlyDictionary<IPoint, IReadOnlyList<IPoint>> navigationMap)
+        {
+            var highways = new List<IHighway>();
+            var from = FindBasePoint(navigationMap);
+            foreach (var resourcePoint in resourcePoints)
+            {
+                var routeToResourcePoint 
+                    = pathfindingAlgorithm.Find(navigationMap, from, resourcePoint);
+                    
+                var mirroredCopy = new IPoint[routeToResourcePoint.Count - 1];
+
+                for (int i = 0; i < routeToResourcePoint.Count - 1; i++)
+                {
+                    mirroredCopy[i] = routeToResourcePoint[routeToResourcePoint.Count - 2 - i];
+                }
+                
+                routeToResourcePoint.AddRange(mirroredCopy);
+                highways.Add(new Highway(routeToResourcePoint));
+            }
+
+            return new Route(highways);
+        }
+        
         private IPoint FindBasePoint(IReadOnlyDictionary<IPoint,IReadOnlyList<IPoint>> navigationMap)
         { 
             return navigationMap.Keys.FirstOrDefault(p => p.GetType() == typeof(BasePoint));
-        }
-
-        private List<IPoint> Combine(List<IPoint> path, List<IPoint> additional)
-        {
-            if (path.LastOrDefault() == additional.FirstOrDefault())
-            {
-                for (int i = 1; i < additional.Count; i++)
-                {
-                    path.Add(additional[i]);
-                }
-            }
-            else
-            {
-                path.AddRange(additional);
-            }
-
-            return path;
         }
     }
 }

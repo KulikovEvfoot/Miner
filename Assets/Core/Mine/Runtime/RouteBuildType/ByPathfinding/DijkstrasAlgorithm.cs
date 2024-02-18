@@ -15,7 +15,7 @@ namespace Core.Mine.Runtime.RouteBuildType.ByPathfinding
             graph.Add(from, new Dictionary<IPoint, float>());
             foreach (var baseNeighbour in baseNeighbours)
             {
-                var range = PointUtils.GetTransitionLength(from, baseNeighbour);
+                var range = NavigationUtils.GetTransitionLength(from, baseNeighbour);
                 graph[from].Add(baseNeighbour, range);
             }
             
@@ -29,7 +29,7 @@ namespace Core.Mine.Runtime.RouteBuildType.ByPathfinding
                 graph.Add(pair.Key, new Dictionary<IPoint, float>());
                 foreach (var neighbour in pair.Value)
                 {
-                    var range = PointUtils.GetTransitionLength(pair.Key, neighbour);
+                    var range = NavigationUtils.GetTransitionLength(pair.Key, neighbour);
                     graph[pair.Key].Add(neighbour, range);
                 }
             }

@@ -1,48 +1,48 @@
-using Common;
+﻿using Common;
 using Services.Currency.Runtime;
 using Services.Currency.Runtime.Calculators;
 
-namespace Core.Currency.Runtime.Gold
+namespace Services.Currency.Tests
 {
-    public class GoldCurrencyController : ICurrencyController
+    public class CurrencyControllerMock : ICurrencyController
     {
         private readonly ICurrencyCalculator m_CurrencyCalculator = new CurrencyCalculator();
-        private readonly GoldCurrencyData m_GoldCurrencyData = new GoldCurrencyData();
-        private readonly EventProducer<ICurrencyObserver> m_CurrencyEventProducer = new EventProducer<ICurrencyObserver>();
-        
+        private readonly CurrencyDataMock m_CurrencyDataMock = new();
+        private readonly EventProducer<ICurrencyObserver> m_CurrencyEventProducer = new();
+
         public IEventProducer<ICurrencyObserver> EventProducer => m_CurrencyEventProducer;
-        
+
         public bool AddValue(long amount)
         {
-            var startValue = m_GoldCurrencyData.GetValue();
+            var startValue = m_CurrencyDataMock.GetValue();
             var result = m_CurrencyCalculator.AddValue(startValue, amount);
             if (!result.IsSuccess)
             {
                 return false;
             }
 
-            m_GoldCurrencyData.SetValue(result.NewValue);
+            m_CurrencyDataMock.SetValue(result.NewValue);
             NotifyOnValueChanged();
             return true;
         }
 
         public bool SubtractValue(long amount)
         {
-            var startValue = m_GoldCurrencyData.GetValue();
+            var startValue = m_CurrencyDataMock.GetValue();
             var result = m_CurrencyCalculator.SubtractValue(startValue, amount);
             if (!result.IsSuccess)
             {
                 return false;
             }
 
-            m_GoldCurrencyData.SetValue(result.NewValue);
+            m_CurrencyDataMock.SetValue(result.NewValue);
             NotifyOnValueChanged();
             return true;
         }
 
         public long GetValue()
         {
-            return m_GoldCurrencyData.GetValue();
+            return m_CurrencyDataMock.GetValue();
         }
 
         public bool CanSub(long amount)
@@ -52,12 +52,12 @@ namespace Core.Currency.Runtime.Gold
                 return false;
             }
             
-            return m_GoldCurrencyData.GetValue() >= amount;
+            return m_CurrencyDataMock.GetValue() >= amount;
         }
-
+        
         private void NotifyOnValueChanged()
         {
-            var value = m_GoldCurrencyData.GetValue();
+            var value = m_CurrencyDataMock.GetValue();
             m_CurrencyEventProducer.NotifyAll(obs => obs.NotifyOnValueChanged(value));
         }
     }

@@ -17,14 +17,14 @@ namespace Services.Currency.Runtime.Rewards
         {
             if (reward == null)
             {
-                Debug.LogError($"{nameof(RewardCollectorsService)} >>> Reward is null");
+                Debug.LogError($"[{nameof(RewardCollectorsService)}]: Reward is null");
                 return;
             }
             
             var type = reward.GetType();
             if (!m_CollectorsMap.ContainsKey(type))
             {
-                Debug.LogError($"{nameof(RewardCollectorsService)} >>> Reward {nameof(type)}, does not contains");
+                Debug.LogError($"[{nameof(RewardCollectorsService)}]: Reward {nameof(type)}, does not contains");
                 return;
             }
             
@@ -39,8 +39,8 @@ namespace Services.Currency.Runtime.Rewards
                 var type = collector.GetRewardType();
                 if (map.ContainsKey(type))
                 {
-                    Debug.LogError($"Map<{nameof(Type)}, {nameof(IRewardCollector)}> already contain" +
-                                   $"type {type}, duplicate");
+                    Debug.LogError($"[{nameof(RewardCollectorsService)}]: Map<{nameof(Type)}, " +
+                                   $"{nameof(IRewardCollector)}> already contain type {type}, duplicate");
                     continue;
                 }
                 

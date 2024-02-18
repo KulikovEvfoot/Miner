@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,79 +11,155 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
         public RouteConductorResult Conduct(RouteConductorArgs args)
         {
             var route = args.Route;
-            var lastPassedPointIndex = args.LastPassedPointIndex;
-            var currentPosition = args.CurrentPosition;
-            var speed = args.SpeedService.Speed;
-            var deltaTime = args.DeltaTime;
+            var speed = args.Speed;
+            var routeTravelInfo = args.RouteTravelInfo;
             
-            //блок просчета пройденных петель
-            var nextPointIndex = GetNextPointIndex(lastPassedPointIndex, route);
-            var distanceToRouteEnd = GetDistanceToRouteEnd(currentPosition, nextPointIndex, route);
-            
-            var timeToRouteEnd = distanceToRouteEnd / speed;
-            var remainingTimeAfterRoute = deltaTime - timeToRouteEnd;
-            var isRoutePassed = remainingTimeAfterRoute > 0 - float.Epsilon;
-
-            var countOfCompletedRoutes = 0;
-            if (isRoutePassed)
+            var routeFullLength = GetRouteLength(args.Route);
+            var routePassingTime = routeFullLength / args.Speed;
+            var countOfCompletedRoutes = Mathf.FloorToInt(routeTravelInfo.DeltaTime / routePassingTime);
+            if (countOfCompletedRoutes > 0)
             {
-                countOfCompletedRoutes = 1;
-                
-                currentPosition = route.First().Position;
-                lastPassedPointIndex = 0;
-                nextPointIndex = GetNextPointIndex(lastPassedPointIndex, route);
-
-                deltaTime = Mathf.Abs(remainingTimeAfterRoute);
-
-                var totalRouteDistance = GetDistanceToRouteEnd(currentPosition, nextPointIndex, route);
-                var timeToPassRoute = totalRouteDistance / speed;
-                var passedLoops = Mathf.FloorToInt(deltaTime / timeToPassRoute);
-                if (passedLoops > 0)
-                {
-                    countOfCompletedRoutes += passedLoops;
-                    deltaTime %= timeToPassRoute;
-                }
+                routeTravelInfo.UpdateDeltaTime(routeTravelInfo.DeltaTime % routePassingTime);
             }
             
-            //блок просчета пройденных точек
-            var passedPoints = new List<IPoint>();
-            for (int i = nextPointIndex; i < route.Count; i++)
+            var highwayResult = GetHighwaysByTime(args.Route, args.Speed, routeTravelInfo);
+
+            if (highwayResult.IsPassed)
             {
-                var nextPoint = route[nextPointIndex];
-                var lengthToTransitionEnd = GetDistanceToNextPoint(currentPosition, nextPoint);
-                var timeToNextTransition = lengthToTransitionEnd / speed;
-                var remainingTimeAfterTransition = deltaTime - timeToNextTransition;
+                routeTravelInfo = highwayResult.RouteTravelInfo;
+            }
+
+            var passedPointsOnCurrentHighway = new List<IPoint>();
+            var currentPoints = route.Highways[routeTravelInfo.CurrentHighwayIndex].Points;
+            for (int i = routeTravelInfo.CurrentPointIndex; i < currentPoints.Count; i++)
+            {
+                var nextPointInHighwayIndex = GetNextIndex(currentPoints, routeTravelInfo.CurrentPointIndex);
+                var nextPointInHighway = currentPoints[nextPointInHighwayIndex];
+                var lengthToNextPoint 
+                    = GetDistanceToNextPoint(routeTravelInfo.CurrentPosition, nextPointInHighway);
+                
+                var timeToNextPoint = lengthToNextPoint / speed;
+                var remainingTimeAfterTransition = routeTravelInfo.DeltaTime - timeToNextPoint;
                 var isTransitionPassed = remainingTimeAfterTransition > 0 - float.Epsilon;
+                
                 if (isTransitionPassed)
                 {
-                    currentPosition = nextPoint.Position;
-                    deltaTime = Math.Abs(remainingTimeAfterTransition);
-
-                    lastPassedPointIndex = nextPointIndex;
-                    nextPointIndex = GetNextPointIndex(nextPointIndex, route);
+                    passedPointsOnCurrentHighway.Add(nextPointInHighway);
                     
-                    passedPoints.Add(nextPoint);
+                    routeTravelInfo = new RouteTravelInfo(
+                        routeTravelInfo.CurrentHighwayIndex,
+                        nextPointInHighwayIndex, 
+                        currentPoints[nextPointInHighwayIndex].Position,
+                        remainingTimeAfterTransition);
+                    
                     continue;
                 }
                 
                 break;
             }
 
-            //блок просчёта за тик
-            var lastPassedPoint = route[lastPassedPointIndex];
-            var nextPointTick = GetNextPoint(lastPassedPointIndex, route);
-            var rangeToNextPosition = Vector3.Distance(nextPointTick.Position, currentPosition);
-            var timeToNextPosition = rangeToNextPosition / speed;
-            var remainingTimeAfterTick = timeToNextPosition - deltaTime;
+            var nextPointIndex = GetNextIndex(currentPoints, routeTravelInfo.CurrentPointIndex);
+            var nextPoint = currentPoints[nextPointIndex];
+            var currentPoint = currentPoints[routeTravelInfo.CurrentPointIndex];
+            var direction = NavigationUtils.GetTransitionDirection(nextPoint, currentPoint);
+            var newPosition = routeTravelInfo.CurrentPosition + (direction * speed * routeTravelInfo.DeltaTime);
+
+            var resultRouteTravelInfo = new RouteTravelInfo(
+                routeTravelInfo.CurrentHighwayIndex,
+                routeTravelInfo.CurrentPointIndex,
+                newPosition,
+                0);
             
-            if (float.Epsilon > remainingTimeAfterTick)
+            return new RouteConductorResult(
+                route,
+                countOfCompletedRoutes,
+                highwayResult.Highways,
+                passedPointsOnCurrentHighway,
+                resultRouteTravelInfo);
+        }
+
+        private HighwayInfo GetHighwaysByTime(IRoute route, float speed, RouteTravelInfo routeTravelInfo)
+        {
+            var highwayResult = new HighwayInfo(routeTravelInfo, new List<IHighway>());
+            while (true)
             {
-                //точка пройдена (а так блять не должно быть)
+                var loopResult = PassHighway(route, speed, highwayResult.RouteTravelInfo);
+                if (!loopResult.IsPassed)
+                {
+                    break;
+                }
+
+                highwayResult.Combine(loopResult);
+            }
+            
+            return highwayResult;
+        }
+
+        private HighwayInfo PassHighway(
+            IRoute route, 
+            float speed, 
+            RouteTravelInfo routeTravelInfo)
+        {
+            var currentHighway = route.Highways[routeTravelInfo.CurrentHighwayIndex];
+            var distanceToHighwayEnd = GetDistanceToHighwayEnd(
+                currentHighway,
+                routeTravelInfo.CurrentPosition,
+                routeTravelInfo.CurrentPointIndex);
+            
+            var timeToHighwayEnd = distanceToHighwayEnd / speed;
+            var remainingTimeAfterHighway = routeTravelInfo.DeltaTime - timeToHighwayEnd;
+            var isHighwayPassed = remainingTimeAfterHighway > 0 - float.Epsilon;
+
+            if (!isHighwayPassed)
+            {
+                return new HighwayInfo();
+            }
+            
+            var highways = new List<IHighway> { currentHighway };
+
+            var nextHighwayIndex = GetNextIndex(route.Highways, routeTravelInfo.CurrentHighwayIndex);
+            var newRouteTravelInfo = new RouteTravelInfo(
+                nextHighwayIndex,
+                0,
+                route.Highways[nextHighwayIndex].Points[0].Position,
+                remainingTimeAfterHighway);
+            
+            return new HighwayInfo(newRouteTravelInfo, highways);
+        }
+        
+        private float GetRouteLength(IRoute route)
+        {
+            return route.Highways.Sum(GetHighwayLength);
+        }
+
+        private float GetHighwayLength(IHighway highway)
+        {
+            var length = 0f;
+            var points = highway.Points;
+            for (int i = 0; i < points.Count - 1; i++)
+            {
+                length += Vector3.Distance(points[i + 1].Position, points[i].Position);
+            }
+            
+            return length;
+        }
+        
+        private float GetDistanceToHighwayEnd(IHighway highway, Vector3 currentPosition, int lastPassedPointIndex)
+        {
+            var points = highway.Points;
+            var nextPointIndex = GetNextIndex(points, lastPassedPointIndex);
+            var distanceToNextPoint = GetDistanceToNextPoint(currentPosition, points[nextPointIndex]);
+            if (nextPointIndex == 0)
+            {
+                return distanceToNextPoint;
+            }
+            
+            for (int i = nextPointIndex; i < points.Count - 1; i++)
+            {
+                distanceToNextPoint += GetDistanceToNextPoint(points[i + 1], points[i]);
             }
 
-            var direction = PointUtils.GetTransitionDirection(nextPointTick, lastPassedPoint);
-            var newPosition = currentPosition + (direction * speed * deltaTime);
-            return new RouteConductorResult(lastPassedPointIndex, newPosition, passedPoints, countOfCompletedRoutes);
+            return distanceToNextPoint;
         }
         
         private float GetDistanceToNextPoint(Vector3 currentPosition, IPoint nextPoint)
@@ -91,39 +168,21 @@ namespace Services.Navigation.Runtime.Scripts.Transfer
             return distanceToNextPoint;
         }
         
-        private float GetDistanceToRouteEnd(Vector3 currentPosition, int nextPointIndex, IReadOnlyList<IPoint> route)
+        private float GetDistanceToNextPoint(IPoint from, IPoint to)
         {
-            var distanceToNextPoint = GetDistanceToNextPoint(currentPosition, route[nextPointIndex]);
-            if (nextPointIndex == 0)
-            {
-                return distanceToNextPoint;
-            }
-
-            var lastPassedPoint = nextPointIndex;
-            nextPointIndex = GetNextPointIndex(nextPointIndex, route);
-            
-            for (int i = nextPointIndex; i < route.Count; i++)
-            {
-                distanceToNextPoint += PointUtils.GetTransitionLength(route[lastPassedPoint], route[nextPointIndex]);
-            }
-
+            var distanceToNextPoint = Vector3.Distance(to.Position, from.Position); 
             return distanceToNextPoint;
         }
         
-        private int GetNextPointIndex(int lastPassedPointIndex, IReadOnlyList<IPoint> route)
+        private int GetNextIndex<T>(IReadOnlyCollection<T> collection, int lastIndex)
         {
-            var nextIndex = lastPassedPointIndex + 1;
-            if (nextIndex == route.Count)
+            var nextIndex = lastIndex + 1;
+            if (nextIndex == collection.Count)
             {
                 return 0;
             }
 
             return nextIndex;
-        }
-
-        private IPoint GetNextPoint(int lastPassedPointIndex, IReadOnlyList<IPoint> route)
-        {
-            return route[GetNextPointIndex(lastPassedPointIndex, route)];
         }
     }
 }

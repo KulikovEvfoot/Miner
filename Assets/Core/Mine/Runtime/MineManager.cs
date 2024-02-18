@@ -57,7 +57,7 @@ namespace Core.Mine.Runtime
             return basePoint;
         }
 
-        public IReadOnlyList<IPoint> CreateRoute()
+        public IRoute CreateRoute()
         {
             var mineConfig = m_SampleGameConfig.MineConfig;
             var routeFactory = new RouteFactory(mineConfig);

@@ -8,6 +8,6 @@ namespace Services.Currency.Runtime
         bool SubtractValue(long amount);
         long GetValue();
         bool CanSub(long amount);
-        IEventProducer<ICurrencyObserver> CurrencyEventProducer { get; }
+        IEventProducer<ICurrencyObserver> EventProducer { get; }
     }
 }
